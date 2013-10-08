@@ -30,8 +30,8 @@ def setup_options(args)
     opts.separator ""
     opts.on("-a", "--annotation_file [ANNO_FILE]",
       :REQUIRED,String,
-      "fbgn_annotation_ID_fb_2013_05.tsv (ftp://ftp.flybase.net/releases/current/precomputed_files/genes/fbgn_annotation_ID_fb_2013_05.tsv.gz)") do |gtf_file|
-      options[:gtf_file] = gtf_file
+      "fbgn_annotation_ID_fb_2013_05.tsv") do |anno_file|
+      options[:anno_file] = anno_file
     end
 
     opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
@@ -42,19 +42,26 @@ def setup_options(args)
       options[:log_level] = "debug"
     end
 
-    opts.on("-g", "--groups [GROUPS]",:REQUIRED,
-      String,
-      "grouping, for example 3,3 for two groups with each 3 replicates") do |g|
-      options[:groups] = g
-    end
-
-
   end
 
   args = ["-h"] if args.length == 0
   opt_parser.parse!(args)
-  raise "Please specify htseq_files" if args.length == 0
+  raise "Please specify a anova_result file" if args.length == 0
   options
+end
+
+def read_annotation(anno_file)
+  gene_info = {}
+  File.open(anno_file, "r").each do |line|
+    line.chomp!
+    next unless line =~ /CG/
+    gene_symbol, primary_FBgn, secondary_FBgn, annotation_ID =
+      line.split("\t")
+    $logger.debug(gene_symbol)
+    gene_info[annotation_ID] = gene_symbol
+  end
+  gene_info
+  $logger.debug(gene_info)
 end
 
 def run(argv)
@@ -63,17 +70,7 @@ def run(argv)
   $logger.debug(options)
   $logger.debug(argv)
 
-  #genes = get_genes(options[:gtf_file])
-#
-  #all_fpkm_values = all_fpkm(argv,genes)
-#
-  #feature, rep, val = format_groups(options[:groups])
-  #all_p_values = p_values(all_fpkm_values,feature,val)
-#
-  #all_with_q_values = q_values(all_p_values)
-  #all_with_q_values.each_pair do |key,value|
-  #  puts "#{key}\t#{value.join("\t")}\t#{all_fpkm_values[key].join("\t")}"
-  #end
+  gene_info = read_annotation(options[:anno_file])
 end
 
 if __FILE__ == $0
