@@ -60,8 +60,20 @@ def read_annotation(anno_file)
     $logger.debug(gene_symbol)
     gene_info[annotation_ID] = gene_symbol
   end
-  gene_info
   $logger.debug(gene_info)
+  gene_info
+
+end
+
+def match_genes(anova_file,gene_info)
+  # Writing to STDOUT
+  File.foreach(anova_file) do |line|
+    line.chomp!
+    fields = line.split("\t")
+    id = fields[0].split("-")[0]
+    fields.insert(1,gene_info[id])
+    puts fields.join("\t")
+  end
 end
 
 def run(argv)
@@ -71,6 +83,7 @@ def run(argv)
   $logger.debug(argv)
 
   gene_info = read_annotation(options[:anno_file])
+  match_genes(argv[0],gene_info)
 end
 
 if __FILE__ == $0
