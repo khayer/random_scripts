@@ -55,10 +55,15 @@ def read_annotation(anno_file)
   File.open(anno_file, "r").each do |line|
     line.chomp!
     next unless line =~ /CG/
-    gene_symbol, primary_FBgn, secondary_FBgn, annotation_ID =
+    gene_symbol, primary_FBgn, secondary_FBgn, annotation_ID, secondary_annotation_ID =
       line.split("\t")
     $logger.debug(gene_symbol)
     gene_info[annotation_ID] = gene_symbol
+    if secondary_annotation_ID
+      secondary_annotation_ID.split(",").each do |entry|
+        gene_info[entry] = gene_symbol
+      end
+    end
   end
   $logger.debug(gene_info)
   gene_info
