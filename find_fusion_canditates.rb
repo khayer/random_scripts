@@ -92,7 +92,7 @@ def read_samfiles(sam_files,out_file)
       
         if rev_info[fwd_name] 
           rev_info[fwd_name].each do |gene_name|
-            if !fwd_info[fwd_name].include?(gene_name)
+            if !fwd_info[fwd_name].include?(gene_name) && !fwd_info[fwd_name].empty?
               fusion = true
               puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
             else
@@ -142,7 +142,7 @@ def read_samfiles(sam_files,out_file)
   
     if rev_info[fwd_name] 
       rev_info[fwd_name].each do |gene_name|
-        if !fwd_info[fwd_name].include?(gene_name)
+        if !fwd_info[fwd_name].include?(gene_name) && !fwd_info[fwd_name].empty?
           fusion = true
           puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
         else
