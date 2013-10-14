@@ -85,14 +85,18 @@ def read_samfiles(sam_files,out_file)
         rev_info[rev_fields[0]]  << rev_fields[2]
       end
       rev.lineno = rev.lineno - 1
-      rev_info[name].each do |gene_name|
-        if !fwd_info[name].include?(gene_name)
-          fusion = true
-          puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
-        else
-          found = true
-          fwd_info[name].delete(gene_name)
+      if rev_info[name] 
+        rev_info[name].each do |gene_name|
+          if !fwd_info[name].include?(gene_name)
+            fusion = true
+            puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
+          else
+            found = true
+            fwd_info[name].delete(gene_name)
+          end
         end
+      else
+        $logger.debug("Rev_info[#{name}] was empty!")
       end
       
       if found
