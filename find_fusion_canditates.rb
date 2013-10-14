@@ -25,7 +25,7 @@ def setup_options(args)
     opts.banner = "Usage: find_fusion_canditates.rb [options] R1.sam R2.sam"
     opts.separator ""
     opts.separator "sam files aligned to transcriptome, sorted by queryname"
-  
+
     opts.separator ""
     opts.on("-o", "--out_file [OUT_FILE]",
       :REQUIRED,String,
@@ -89,21 +89,21 @@ def read_samfiles(sam_files,out_file)
           rev_info[rev_fields[0]]  << rev_fields[2]
         end
         rev.lineno = rev.lineno - 1
-      
-        if rev_info[fwd_name] 
+
+        if rev_info[fwd_name]
           rev_info[fwd_name].each do |gene_name|
             if !fwd_info[fwd_name].include?(gene_name) && !fwd_info[fwd_name].empty?
               fusion = true
-              puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
+              puts "#{fwd_name}\t#{gene_name}\t#{fwd_info[fwd_name].join(",")}"
             else
               found = true
               fwd_info[fwd_name].delete(gene_name)
             end
           end
         else
-          $logger.debug("Rev_info[#{name}] was empty!")
+          $logger.debug("Rev_info[#{fwd_name}] was empty!")
         end
-      
+
         if found
           fwd_info.delete(fwd_name)
           rev_info.delete(fwd_name)
@@ -139,21 +139,21 @@ def read_samfiles(sam_files,out_file)
       rev_info[rev_fields[0]]  << rev_fields[2]
     end
     rev.lineno = rev.lineno - 1
-  
-    if rev_info[fwd_name] 
+
+    if rev_info[fwd_name]
       rev_info[fwd_name].each do |gene_name|
         if !fwd_info[fwd_name].include?(gene_name) && !fwd_info[fwd_name].empty?
           fusion = true
-          puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
+          puts "#{fwd_name}\t#{gene_name}\t#{fwd_info[fwd_name].join(",")}"
         else
           found = true
           fwd_info[fwd_name].delete(gene_name)
         end
       end
     else
-      $logger.debug("Rev_info[#{name}] was empty!")
+      $logger.debug("Rev_info[#{fwd_name}] was empty!")
     end
-  
+
     if found
       fwd_info.delete(fwd_name)
       rev_info.delete(fwd_name)
@@ -190,7 +190,7 @@ def read_samfiles(sam_files,out_file)
   end
   rev_sequences.each_pair do |q_name,line|
     out_file_handler.puts("### next has no pair")
-    out_file_handler.puts(line) 
+    out_file_handler.puts(line)
     rev_sequences.delete(q_name)
   end
   $logger.info(fwd_info)
@@ -207,7 +207,7 @@ def run(argv)
   $logger.debug(argv)
 
   gene_info = read_samfiles(argv,options[:out_file])
-  
+
 end
 
 if __FILE__ == $0
