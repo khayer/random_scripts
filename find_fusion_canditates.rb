@@ -154,8 +154,8 @@ def read_samfiles(sam_files,out_file)
     fwd_sequences.delete(name)
     rev_sequences.delete(name)
   end
-  $logger.debug(fwd_info)
-  $logger.debug(rev_info)
+  $logger.info(fwd_info)
+  $logger.info(rev_info)
   $logger.debug(fwd_sequences)
   $logger.debug(rev_sequences)
 end
