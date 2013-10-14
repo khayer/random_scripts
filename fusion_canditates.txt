@@ -1,2 +1,8 @@
 seq2	5	name2
 seq2	5	name3
+### next has no pair
+seq6	4	name8
+seq7	4	name7
+seq7	4	name7
+### next has no pair
+seq4	4	name6

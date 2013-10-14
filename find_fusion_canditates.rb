@@ -67,6 +67,7 @@ def read_samfiles(sam_files,out_file)
   rev_info = {}
   rev_sequences = {}
   name = ""
+  names = []
   found = false
   fusion = false
   fwd.each do |fwd_line|
@@ -75,84 +76,122 @@ def read_samfiles(sam_files,out_file)
     fwd_fields = fwd_line.split("\t")
     name = fwd_fields[0] if name == ""
     if fwd_fields[0] != name
-      rev.each do |rev_line|
-        $logger.debug("rev_line: " + rev_line)
-        rev_line.chomp!
-        rev_fields = rev_line.split("\t")
-        rev_sequences[rev_fields[0]]  = rev_line
-        break if rev_fields[0] != name
-        rev_info[rev_fields[0]] = [] unless rev_info[rev_fields[0]]
-        rev_info[rev_fields[0]]  << rev_fields[2]
-      end
-      rev.lineno = rev.lineno - 1
-      if rev_info[name] 
-        rev_info[name].each do |gene_name|
-          if !fwd_info[name].include?(gene_name)
-            fusion = true
-            puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
-          else
-            found = true
-            fwd_info[name].delete(gene_name)
-          end
+      fwd_info.each_pair do |fwd_name, fwd_gene_name|
+        rev_name = ""
+        rev.each do |rev_line|
+          $logger.debug("rev_line: " + rev_line)
+          rev_line.chomp!
+          rev_fields = rev_line.split("\t")
+          rev_sequences[rev_fields[0]]  = rev_line
+          rev_name = rev_fields[0] if rev_name == ""
+          break if rev_fields[0] != rev_name
+          rev_info[rev_fields[0]] = [] unless rev_info[rev_fields[0]]
+          rev_info[rev_fields[0]]  << rev_fields[2]
         end
-      else
-        $logger.debug("Rev_info[#{name}] was empty!")
-      end
+        rev.lineno = rev.lineno - 1
       
-      if found
-        fwd_info.delete(name)
-        rev_info.delete(name)
-        fwd_sequences.delete(name)
-        rev_sequences.delete(name)
+        if rev_info[fwd_name] 
+          rev_info[fwd_name].each do |gene_name|
+            if !fwd_info[fwd_name].include?(gene_name)
+              fusion = true
+              puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
+            else
+              found = true
+              fwd_info[fwd_name].delete(gene_name)
+            end
+          end
+        else
+          $logger.debug("Rev_info[#{name}] was empty!")
+        end
+      
+        if found
+          fwd_info.delete(fwd_name)
+          rev_info.delete(fwd_name)
+          fwd_sequences.delete(fwd_name)
+          rev_sequences.delete(fwd_name)
+        end
+        if fusion
+          out_file_handler.puts(fwd_sequences[fwd_name])
+          out_file_handler.puts(rev_sequences[fwd_name])
+          fwd_info.delete(fwd_name)
+          rev_info.delete(fwd_name)
+          fwd_sequences.delete(fwd_name)
+          rev_sequences.delete(fwd_name)
+        end
+        fusion = false
+        found = false
       end
-      if fusion
-        out_file_handler.puts(fwd_sequences[name])
-        out_file_handler.puts(rev_sequences[name])
-        fwd_info.delete(name)
-        rev_info.delete(name)
-        fwd_sequences.delete(name)
-        rev_sequences.delete(name)
-      end
-      fusion = false
-      found = false
-      name = fwd_fields[0]
+        name = fwd_fields[0]
     end
     fwd_info[fwd_fields[0]] = [] unless fwd_info[fwd_fields[0]]
     fwd_info[fwd_fields[0]]  << fwd_fields[2]
     fwd_sequences[fwd_fields[0]]  = fwd_line
   end
-  rev.each do |rev_line|
-    $logger.debug("rev_line: " + rev_line)
-    rev_line.chomp!
-    rev_fields = rev_line.split("\t")
-    break if rev_fields[0] != name
-    rev_info[rev_fields[0]] = [] unless rev_info[rev_fields[0]]
-    rev_info[rev_fields[0]]  << rev_fields[2]
-  end
-  rev.lineno = rev.lineno - 1
-  rev_info[name].each do |gene_name|
-    if !fwd_info[name].include?(gene_name)
-      fusion = true
-      puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
-    else
-      found = true
-      fwd_info[name].delete(gene_name)
+  fwd_info.each_pair do |fwd_name, fwd_gene_name|
+    rev_name = ""
+    rev.each do |rev_line|
+      $logger.debug("rev_line: " + rev_line)
+      rev_line.chomp!
+      rev_fields = rev_line.split("\t")
+      rev_name = rev_fields[0] if rev_name == ""
+      break if rev_fields[0] != rev_name
+      rev_info[rev_fields[0]] = [] unless rev_info[rev_fields[0]]
+      rev_info[rev_fields[0]]  << rev_fields[2]
     end
+    rev.lineno = rev.lineno - 1
+  
+    if rev_info[fwd_name] 
+      rev_info[fwd_name].each do |gene_name|
+        if !fwd_info[fwd_name].include?(gene_name)
+          fusion = true
+          puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
+        else
+          found = true
+          fwd_info[fwd_name].delete(gene_name)
+        end
+      end
+    else
+      $logger.debug("Rev_info[#{name}] was empty!")
+    end
+  
+    if found
+      fwd_info.delete(fwd_name)
+      rev_info.delete(fwd_name)
+      fwd_sequences.delete(fwd_name)
+      rev_sequences.delete(fwd_name)
+    end
+    if fusion
+      out_file_handler.puts(fwd_sequences[fwd_name])
+      out_file_handler.puts(rev_sequences[fwd_name])
+      fwd_info.delete(fwd_name)
+      rev_info.delete(fwd_name)
+      fwd_sequences.delete(fwd_name)
+      rev_sequences.delete(fwd_name)
+    end
+    fusion = false
+    found = false
   end
-  #name = rev_fields[0]
-  if found
-    fwd_info.delete(name)
-    rev_info.delete(name)
-    fwd_sequences.delete(name)
-    rev_sequences.delete(name)
+  $logger.info(fwd_info)
+  $logger.info(rev_info)
+  $logger.debug(fwd_sequences)
+  $logger.debug(rev_sequences)
+
+  fwd_sequences.each_pair do |q_name, line|
+    if rev_sequences[q_name]
+      out_file_handler.puts(line)
+      out_file_handler.puts(rev_sequences[q_name])
+      rev_sequences.delete(q_name)
+    else
+      out_file_handler.puts("### next has no pair")
+      out_file_handler.puts(line)
+
+    end
+    fwd_sequences.delete(q_name)
   end
-  if fusion
-    out_file_handler.puts(fwd_sequences[name])
-    out_file_handler.puts(rev_sequences[name])
-    fwd_info.delete(name)
-    rev_info.delete(name)
-    fwd_sequences.delete(name)
-    rev_sequences.delete(name)
+  rev_sequences.each_pair do |q_name,line|
+    out_file_handler.puts("### next has no pair")
+    out_file_handler.puts(line) 
+    rev_sequences.delete(q_name)
   end
   $logger.info(fwd_info)
   $logger.info(rev_info)
