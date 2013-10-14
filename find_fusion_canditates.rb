@@ -19,7 +19,7 @@ def setup_logger(loglevel)
 end
 
 def setup_options(args)
-  options = {}
+  options = {:out_file =>  "fusion_canditates.txt"}
 
   opt_parser = OptionParser.new do |opts|
     opts.banner = "Usage: find_fusion_canditates.rb [options] R1.sam R2.sam"
@@ -27,11 +27,11 @@ def setup_options(args)
     opts.separator "sam files aligned to transcriptome, sorted by queryname"
   
     opts.separator ""
-    #opts.on("-a", "--annotation_file [ANNO_FILE]",
-    #  :REQUIRED,String,
-    #  "fbgn_annotation_ID_fb_2013_05.tsv") do |anno_file|
-    #  options[:anno_file] = anno_file
-    #end
+    opts.on("-o", "--out_file [OUT_FILE]",
+      :REQUIRED,String,
+      "File for the output, Default: fusion_canditates.txt") do |anno_file|
+      options[:out_file] = anno_file
+    end
 
     opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
       options[:log_level] = "info"
@@ -56,15 +56,19 @@ def skip_header(open_file)
   open_file.lineno = open_file.lineno - 1
 end
 
-def read_samfiles(sam_files)
+def read_samfiles(sam_files,out_file)
   fwd = File.open(sam_files[0])
   rev = File.open(sam_files[1])
+  out_file_handler = File.open(out_file,'w')
   skip_header(fwd)
   skip_header(rev)
   fwd_info = {}
+  fwd_sequences = {}
   rev_info = {}
+  rev_sequences = {}
   name = ""
   found = false
+  fusion = false
   fwd.each do |fwd_line|
     $logger.debug("fwd_line: " + fwd_line)
     fwd_line.chomp!
@@ -75,6 +79,7 @@ def read_samfiles(sam_files)
         $logger.debug("rev_line: " + rev_line)
         rev_line.chomp!
         rev_fields = rev_line.split("\t")
+        rev_sequences[rev_fields[0]]  = rev_line
         break if rev_fields[0] != name
         rev_info[rev_fields[0]] = [] unless rev_info[rev_fields[0]]
         rev_info[rev_fields[0]]  << rev_fields[2]
@@ -82,22 +87,35 @@ def read_samfiles(sam_files)
       rev.lineno = rev.lineno - 1
       rev_info[name].each do |gene_name|
         if !fwd_info[name].include?(gene_name)
-          found = true
+          fusion = true
           puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
         else
+          found = true
           fwd_info[name].delete(gene_name)
         end
       end
-      name = fwd_fields[0]
-      unless found
+      
+      if found
         fwd_info.delete(name)
         rev_info.delete(name)
-      else
+        fwd_sequences.delete(name)
+        rev_sequences.delete(name)
       end
-
+      if fusion
+        out_file_handler.puts(fwd_sequences[name])
+        out_file_handler.puts(rev_sequences[name])
+        fwd_info.delete(name)
+        rev_info.delete(name)
+        fwd_sequences.delete(name)
+        rev_sequences.delete(name)
+      end
+      fusion = false
+      found = false
+      name = fwd_fields[0]
     end
     fwd_info[fwd_fields[0]] = [] unless fwd_info[fwd_fields[0]]
     fwd_info[fwd_fields[0]]  << fwd_fields[2]
+    fwd_sequences[fwd_fields[0]]  = fwd_line
   end
   rev.each do |rev_line|
     $logger.debug("rev_line: " + rev_line)
@@ -110,20 +128,32 @@ def read_samfiles(sam_files)
   rev.lineno = rev.lineno - 1
   rev_info[name].each do |gene_name|
     if !fwd_info[name].include?(gene_name)
-      found = true
+      fusion = true
       puts "#{name}\t#{gene_name}\t#{fwd_info[name]}"
     else
+      found = true
       fwd_info[name].delete(gene_name)
     end
   end
-  #name = fwd_fields[0]
-  unless found
+  #name = rev_fields[0]
+  if found
     fwd_info.delete(name)
     rev_info.delete(name)
-  else
+    fwd_sequences.delete(name)
+    rev_sequences.delete(name)
+  end
+  if fusion
+    out_file_handler.puts(fwd_sequences[name])
+    out_file_handler.puts(rev_sequences[name])
+    fwd_info.delete(name)
+    rev_info.delete(name)
+    fwd_sequences.delete(name)
+    rev_sequences.delete(name)
   end
   $logger.debug(fwd_info)
   $logger.debug(rev_info)
+  $logger.debug(fwd_sequences)
+  $logger.debug(rev_sequences)
 end
 
 
@@ -133,7 +163,7 @@ def run(argv)
   $logger.debug(options)
   $logger.debug(argv)
 
-  gene_info = read_samfiles(argv)
+  gene_info = read_samfiles(argv,options[:out_file])
   
 end
 

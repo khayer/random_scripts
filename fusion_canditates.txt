@@ -1,0 +1,2 @@
+seq2	5	name2
+seq2	5	name3
