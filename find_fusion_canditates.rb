@@ -71,6 +71,7 @@ def read_samfiles(sam_files,out_file)
   found = false
   fusion = false
   fwd.each do |fwd_line|
+    next unless fwd_line =~ /NH:i:1/
     $logger.debug("fwd_line: " + fwd_line)
     fwd_line.chomp!
     fwd_fields = fwd_line.split("\t")
@@ -79,6 +80,7 @@ def read_samfiles(sam_files,out_file)
       fwd_info.each_pair do |fwd_name, fwd_gene_name|
         rev_name = ""
         rev.each do |rev_line|
+          next unless rev_line =~ /NH:i:1/
           $logger.debug("rev_line: " + rev_line)
           rev_line.chomp!
           rev_fields = rev_line.split("\t")
@@ -88,7 +90,7 @@ def read_samfiles(sam_files,out_file)
           rev_info[rev_fields[0]] = [] unless rev_info[rev_fields[0]]
           rev_info[rev_fields[0]]  << rev_fields[2]
         end
-        rev.lineno = rev.lineno - 1
+        #rev.lineno = rev.lineno - 1
 
         if rev_info[fwd_name]
           rev_info[fwd_name].each do |gene_name|
@@ -130,6 +132,7 @@ def read_samfiles(sam_files,out_file)
   fwd_info.each_pair do |fwd_name, fwd_gene_name|
     rev_name = ""
     rev.each do |rev_line|
+      next unless rev_line =~ /NH:i:1/
       $logger.debug("rev_line: " + rev_line)
       rev_line.chomp!
       rev_fields = rev_line.split("\t")
@@ -138,7 +141,7 @@ def read_samfiles(sam_files,out_file)
       rev_info[rev_fields[0]] = [] unless rev_info[rev_fields[0]]
       rev_info[rev_fields[0]]  << rev_fields[2]
     end
-    rev.lineno = rev.lineno - 1
+    #rev.lineno = rev.lineno - 1
 
     if rev_info[fwd_name]
       rev_info[fwd_name].each do |gene_name|
