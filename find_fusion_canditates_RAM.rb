@@ -91,8 +91,8 @@ def read_samfiles(sam_files,out_file)
     else
       puts "#{rev_fields[0]}\t#{fwd_info[rev_fields[0]]}\t#{rev_fields[2]}"
       found = true
-      out_file_handler.puts("#{rev_fields[0]}\t#{fwd_sequences[fwd_name]}")
-      out_file_handler.puts("#{rev_fields[0]}\t#{fields[10]}")
+      out_file_handler.puts("#{rev_fields[0]}\t#{fwd_sequences[rev_fields[0]]}")
+      out_file_handler.puts("#{rev_fields[0]}\t#{rev_fields[10]}")
       fwd_info.delete(rev_fields[0])
       fwd_sequences.delete(rev_fields[0])
     end
