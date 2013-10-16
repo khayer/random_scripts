@@ -71,7 +71,7 @@ def read_samfiles(sam_files,out_file)
   found = false
   fusion = false
   fwd.each do |fwd_line|
-    next unless fwd_line =~ /NH:i:1/
+    #next unless fwd_line =~ /NH:i:1/
     $logger.debug("fwd_line: " + fwd_line)
     fwd_line.chomp!
     fwd_fields = fwd_line.split("\t")
