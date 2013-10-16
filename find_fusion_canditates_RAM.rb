@@ -72,7 +72,7 @@ def read_samfiles(sam_files,out_file)
     fwd_fields = fwd_line.split("\t")
     #fwd_info[fwd_fields[0]] = [] unless fwd_info[fwd_fields[0]]
     fwd_info[fwd_fields[0]] = fwd_fields[2]
-    fwd_sequences[fwd_fields[0]]  = fields[9]
+    fwd_sequences[fwd_fields[0]]  = fwd_fields[9]
   end
 
   rev_info = {}
