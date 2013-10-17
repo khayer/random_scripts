@@ -71,6 +71,8 @@ def read_samfiles(sam_files,out_file)
     fwd_line.chomp!
     fwd_fields = fwd_line.split("\t")
     #fwd_info[fwd_fields[0]] = [] unless fwd_info[fwd_fields[0]]
+    next if fwd_fields == "*"
+    $logger.debug("fwd_line2: " + fwd_line)
     fwd_info[fwd_fields[0]] = fwd_fields[2]
     fwd_sequences[fwd_fields[0]]  = fwd_fields[9]
   end
@@ -82,9 +84,9 @@ def read_samfiles(sam_files,out_file)
   rev.each do |rev_line|
     next unless rev_line =~ /NH:i:1/
     rev_fields = rev_line.split("\t")
-    name = rev_fields[0] if name == ""
+    name = rev_fields[0] if name == "*"
     found = false
-    if fwd_info[rev_fields[0]] == rev_fields[2]
+    if fwd_info[rev_fields[0]] == rev_fields[2] || fwd_info[rev_fields[0]] == "*" || rev_fields[2] == "*" || !fwd_info[rev_fields[0]]
       found = true
       fwd_info.delete(rev_fields[0])
       fwd_sequences.delete(rev_fields[0])
@@ -102,15 +104,24 @@ def read_samfiles(sam_files,out_file)
   end
 end
 
+def get_memory_usage
+  `ps -o rss= -p #{Process.pid}`.to_i
+end
+
 
 def run(argv)
   options = setup_options(argv)
   setup_logger(options[:log_level])
   $logger.debug(options)
   $logger.debug(argv)
-
+  before = get_memory_usage
+  #print "BEFORE: " + before.to_s
+  $logger.info("BEFORE: " + before.to_s + " (in 1024 Bytes)")
+  
   gene_info = read_samfiles(argv,options[:out_file])
-
+  after = get_memory_usage
+  #print "AFTER: " + (after-before).to_s
+  $logger.info("AFTER: " + (after-before).to_s + " (in 1024 Bytes)")
 end
 
 if __FILE__ == $0
