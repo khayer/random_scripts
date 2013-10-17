@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 require 'optparse'
 require 'logger'
+require 'spreadsheet'
+require "csv"
+require 'set'
+
 
 $logger = Logger.new(STDERR)
 
@@ -19,10 +23,10 @@ def setup_logger(loglevel)
 end
 
 def setup_options(args)
-  options = {:out_file =>  "fusion_canditates_table.txt"}
+  options = {:out_file =>  "fusion_canditates_table.xls", :cut_off => 1000}
 
   opt_parser = OptionParser.new do |opts|
-    opts.banner = "Usage: fusion_table.rb [options] fusion_canditates.txt"
+    opts.banner = "Usage: fusion_table.rb [options] fusion_canditates.txt hg19_refseq_genes_anno"
     opts.separator ""
     opts.separator "sam files aligned to transcriptome, sorted by queryname"
 
@@ -41,6 +45,13 @@ def setup_options(args)
       options[:log_level] = "debug"
     end
 
+    opts.on("-c", "--cut_off",Integer, "Set cut_off default is 1000") do |v|
+      options[:cut_off] = v
+    end
+
+    opts.on("-j", "--junction_files",:REQUIRED,String, "Comma separated junction list") do |v|
+      options[:junction_files] = v
+    end
   end
 
   args = ["-h"] if args.length == 0
@@ -49,14 +60,79 @@ def setup_options(args)
   options
 end
 
-def read_samfiles(sam_files,out_file)
-  sam_file_h = File.open(sam_files[0])
+def make_link(gene_name)
+  link = "http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=#{gene_name}"
+end
+
+def read_table(anno_file)
+  gene_anno = {}
+  CSV.read(anno_file, { :col_sep => "\t",:headers => :first_row }).each do |row|
+    gene_anno[row["name"]] = {:chrom => row["chrom"], :strand => row["strand"],
+      :txStart => row["txStart"], :txEnd => row["txEnd"], :name2 => row["name2"]}
+  end
+  gene_anno
+end
+
+def find_junctions(junction_files)
+  junctions = {}
+  junction_files.split(",").each do |file|
+    #puts file
+    File.open(file).each do |line|
+      line.chomp!
+      gene1,d,d,gene2 = line.split("\t")
+      gene1.gsub!(/^hg19_refGene_/,"")
+      gene2.gsub!(/^hg19_refGene_/,"")
+      next if gene1 == gene2
+      #$logger.debug(gene1)
+      #$logger.debug(gene2)
+      s = Set.new [gene1,gene2]
+      junctions[s] = 0 unless  junctions[s]
+      junctions[s] += 1
+    end
+
+  end
+  junctions
+end
+
+def read_summary(fusion_table,out_file,gene_anno,cut_off,junctions)
+  book = Spreadsheet::Workbook.new
+  sheet1 = book.create_worksheet
+  sheet1.row(0).push 'Counts', 'Gen sym 1', 'Pos 1', 'Gen sym 2',
+    'Pos 2', 'Refseq 1', 'Refseq 2', 'Junctions?'
+  i = 1
+
+
+
+  tab_file_h = File.open(fusion_table)
   out_file_h = File.open(out_file,'w')
-  sam_file_h.each do |line|
+  tab_file_h.each do |line|
     line.chomp!
     next if line == ""
-    fields[0] = line.split("\t")
+    counts, refseq_1, refseq_2 = line.split(" ")
+    refseq_2.gsub!(/^hg19_refGene_/,"")
+    refseq_1.gsub!(/^hg19_refGene_/,"")
+    #$logger.debug("#{refseq_1} and #{refseq_2}")
+    gene_sym_1 = gene_anno[refseq_1][:name2]
+    gene_sym_1_link = make_link(gene_sym_1)
+    gene_sym_2 = gene_anno[refseq_2][:name2]
+    gene_sym_2_link = make_link(gene_sym_2)
+
+    if junctions
+      s = Set.new [refseq_1,refseq_2]
+      junc = junctions[s]
+    else
+      junc = "n/a"
+    end
+    pos1 = "#{gene_anno[refseq_1][:chrom]}:#{gene_anno[refseq_1][:txStart]}-#{gene_anno[refseq_1][:txEnd]}"
+    pos2 = "#{gene_anno[refseq_2][:chrom]}:#{gene_anno[refseq_2][:txStart]}-#{gene_anno[refseq_2][:txEnd]}"
+    sheet1.update_row i, counts, Spreadsheet::Link.new(gene_sym_1_link,gene_sym_1),
+      pos1,Spreadsheet::Link.new(gene_sym_2_link,gene_sym_2), pos2, refseq_1,
+      refseq_2, junc
+    i += 1
+    break if i >= cut_off
   end
+
+  book.write out_file
 end
 
 
@@ -66,7 +142,16 @@ def run(argv)
   $logger.debug(options)
   $logger.debug(argv)
 
-  gene_info = read_samfiles(argv,options[:out_file])
+  if options[:junction_files] != ""
+    junctions = find_junctions(options[:junction_files])
+  else
+    junctions = nil
+  end
+  #puts junctions
+  gene_anno = read_table(argv[1])
+  #$logger.debug(gene_anno)
+  #$logger.debug(gene_anno["NM_014513"][:chrom])
+  read_summary(argv[0],options[:out_file],gene_anno,options[:cut_off],junctions)
 
 end
 
