@@ -193,15 +193,15 @@ def find_matchting_seq(alinged_sam,sequences,out_prefix,is_fwd)
     q_name,d,d,d,d,d,d,d,d,seq = line.split("\t")
     if sequences.include?(q_name)
       if is_fwd
-        o1.puts(">#{qname}")
+        o1.puts(">#{q_name}")
         o1.puts(seq)
-        o2.puts(">#{qname}")
-        o2.puts(sequences[qname])
+        o2.puts(">#{q_name}")
+        o2.puts(sequences[q_name])
       else
-        o2.puts(">#{qname}")
+        o2.puts(">#{q_name}")
         o2.puts(seq)
-        o1.puts(">#{qname}")
-        o1.puts(sequences[qname])
+        o1.puts(">#{q_name}")
+        o1.puts(sequences[q_name])
       end
     end
   end
