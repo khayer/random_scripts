@@ -225,8 +225,6 @@ def run(argv)
   fusion_sets = create_fusions_sets(argv[5],options[:cut_off])
   #fwd_sequences, rev_sequences = read_samfiles(argv[1],argv[2],fusion_sets)
   fwd_sequences = get_sequences(argv[1],fusion_sets)
-  puts fwd_sequences
-  exit
   find_matchting_seq(argv[4],fwd_sequences,options[:out_file],false)
   fwd_sequences = nil
   rev_sequences = get_sequences(argv[2],fusion_sets)
