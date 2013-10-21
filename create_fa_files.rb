@@ -229,6 +229,7 @@ def get_sorrounding_cdnas(aligned_sam,sequences,fusion_sets)
     if in_sets
       sequences[q_name] = seq
     end
+  end
   sequences
 end
 
