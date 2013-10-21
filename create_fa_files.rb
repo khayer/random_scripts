@@ -219,14 +219,14 @@ def get_sorrounding_cdnas(aligned_sam,sequences,fusion_sets)
     next unless line =~ /NH:i:1/
     q_name,d,gene1,d,d,d,d,d,d,seq = line.split("\t")
     gene1.gsub!(/^hg19_refGene_/,"")
-    in_sets? = false
+    in_sets = false
     fusion_sets.each do |s|
       if s.include?(gene1)
-        in_sets? = true
+        in_sets = true
         break
       end
     end
-    if in_sets?
+    if in_sets
       sequences[q_name] = seq
     end
   sequences
