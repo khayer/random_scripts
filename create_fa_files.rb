@@ -186,7 +186,6 @@ def find_matchting_seq(alinged_sam,sequences,out_prefix,is_fwd)
   sam_file = File.open(alinged_sam)
   skip_header(sam_file)
 
-  fwd_sequences = {}
   sam_file.each do |line|
     line.chomp!
     next unless line =~ /NH:i:1/
@@ -207,6 +206,7 @@ def find_matchting_seq(alinged_sam,sequences,out_prefix,is_fwd)
   end
   o1.close
   o2.close
+  sam_file.close()
 end
 
 
