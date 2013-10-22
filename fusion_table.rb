@@ -23,7 +23,8 @@ def setup_logger(loglevel)
 end
 
 def setup_options(args)
-  options = {:out_file =>  "fusion_canditates_table.xls", :cut_off => 1000}
+  options = {:out_file =>  "fusion_canditates_table.xls", :cut_off => 1000,
+    :junction_files => ""}
 
   opt_parser = OptionParser.new do |opts|
     opts.banner = "Usage: fusion_table.rb [options] fusion_canditates.txt hg19_refseq_genes_anno"
@@ -33,7 +34,7 @@ def setup_options(args)
     opts.separator ""
     opts.on("-o", "--out_file [OUT_FILE]",
       :REQUIRED,String,
-      "File for the output, Default: fusion_canditates_table.txt") do |anno_file|
+      "File for the output, Default: fusion_canditates_table.xls") do |anno_file|
       options[:out_file] = anno_file
     end
 
