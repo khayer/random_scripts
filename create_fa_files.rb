@@ -48,7 +48,7 @@ def setup_options(args)
 
   end
 
-  args = ["-h"] if args.length == 0
+  args = ["-h"] if args.length < 6
   opt_parser.parse!(args)
   raise "Please specify the sam files" if args.length == 0
   options
