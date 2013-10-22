@@ -179,11 +179,11 @@ def create_fusions_sets(top_hits,cut_off)
   fusion_sets
 end
 
-def find_matchting_seq(alinged_sam,sequences,out_prefix,is_fwd)
+def find_matchting_seq(aligned_sam,sequences,out_prefix,is_fwd)
   o1 = File.open("#{out_prefix}R1.fa",'a')
   o2 = File.open("#{out_prefix}R2.fa",'a')
 
-  sam_file = File.open(alinged_sam)
+  sam_file = File.open(aligned_sam)
   skip_header(sam_file)
 
   sam_file.each do |line|
@@ -206,9 +206,31 @@ def find_matchting_seq(alinged_sam,sequences,out_prefix,is_fwd)
   end
   o1.close
   o2.close
-  sam_file.close()
+  sam_file.close
 end
 
+def get_sorrounding_cdnas(aligned_sam,sequences,fusion_sets)
+  sam_file = File.open(aligned_sam)
+  skip_header(sam_file)
+
+  sam_file.each do | line|
+    line.chomp!
+    next unless line =~ /NH:i:1/
+    q_name,d,gene1,d,d,d,d,d,d,seq = line.split("\t")
+    gene1.gsub!(/^hg19_refGene_/,"")
+    in_sets = false
+    fusion_sets.each do |s|
+      if s.include?(gene1)
+        in_sets = true
+        break
+      end
+    end
+    if in_sets
+      sequences[q_name] = seq
+    end
+  end
+  sequences
+end
 
 def run(argv)
   options = setup_options(argv)
@@ -225,9 +247,12 @@ def run(argv)
   fusion_sets = create_fusions_sets(argv[5],options[:cut_off])
   #fwd_sequences, rev_sequences = read_samfiles(argv[1],argv[2],fusion_sets)
   fwd_sequences = get_sequences(argv[1],fusion_sets)
+  fwd_sequences = get_sorrounding_cdnas(argv[3],fwd_sequences,fusion_sets)
+
   find_matchting_seq(argv[4],fwd_sequences,options[:out_file],false)
   fwd_sequences = nil
   rev_sequences = get_sequences(argv[2],fusion_sets)
+  rev_sequences = get_sorrounding_cdnas(argv[4],rev_sequences,fusion_sets)
   find_matchting_seq(argv[3],rev_sequences,options[:out_file],true)
   after = get_memory_usage
   #print "AFTER: " + (after-before).to_s
