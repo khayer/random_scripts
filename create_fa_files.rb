@@ -188,7 +188,7 @@ def find_matchting_seq(aligned_sam,sequences,out_prefix,is_fwd)
 
   sam_file.each do |line|
     line.chomp!
-    next unless line =~ /NH:i:1/
+    #next unless line =~ /NH:i:1/
     q_name,d,d,d,d,d,d,d,d,seq = line.split("\t")
     if sequences.include?(q_name)
       if is_fwd
@@ -215,7 +215,7 @@ def get_sorrounding_cdnas(aligned_sam,sequences,fusion_sets)
 
   sam_file.each do | line|
     line.chomp!
-    next unless line =~ /NH:i:1/
+    #next unless line =~ /NH:i:1/
     q_name,d,gene1,d,d,d,d,d,d,seq = line.split("\t")
     gene1.gsub!(/^hg19_refGene_/,"")
     in_sets = false
