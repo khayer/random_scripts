@@ -46,8 +46,8 @@ def setup_options(args)
       options[:log_level] = "debug"
     end
 
-    opts.on("-c", "--cut_off",Integer, "Set cut_off default is 1000") do |v|
-      options[:cut_off] = v
+    opts.on("-c", "--cut_off",String, "Set cut_off default is 1000") do |v|
+      options[:cut_off] = v.to_i
     end
 
     opts.on("-j", "--junction_files",:REQUIRED,String, "Comma separated junction list") do |v|
