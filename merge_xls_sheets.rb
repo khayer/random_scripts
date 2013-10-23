@@ -5,6 +5,7 @@ require 'spreadsheet'
 require 'set'
 
 $logger = Logger.new(STDERR)
+$index_file = ""
 
 # Initialize logger
 def setup_logger(loglevel)
@@ -86,6 +87,8 @@ def merge(real,sim,out_file,cut_off)
   i = 1
   sheet_real.each 1 do |row|
     s = Set.new [row[5],row[6]]
+
+    run_bl2seq(row[5],row[6])
     if info.include?(s)
       sheet1.row(i).default_format = grey
       #sheet1.row(i).set_format(grey)
@@ -95,6 +98,24 @@ def merge(real,sim,out_file,cut_off)
     end
     i += 1
   end
+
+  def run_bl2seq(gene1,gene2)
+    gene1 = "hg19_refGene_#{gene1}"
+    gene2 = "hg19_refGene_#{gene2}"
+
+    `samtools faidx #{$index_file} #{gene1}> tmp1.fa`
+    `samtools faidx #{$index_file} #{gene2}> tmp2.fa`
+    out = `bl2seq -i tmp1.fa -j tmp2.fa -p blastn`
+
+    score = ""
+    identities = ""
+    expect = ""
+    strand = ""
+    out.each do |line|
+      line.chomp!
+      if line =~ /Score/
+        score = line.split("Score = ")[1]
+    end
 
   #tab_file_h.each do |line|
   #  line.chomp!
