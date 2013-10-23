@@ -72,7 +72,7 @@ def run_bl2seq(gene1,gene2)
   alignment_length = ""
   out.split("\n").each do |line|
     line.chomp!
-    next if line ~= "^##"
+    next if line =~ /^##/
     fields = line.split("\t")
     score = fields[-1]
     identities = fields[2]
