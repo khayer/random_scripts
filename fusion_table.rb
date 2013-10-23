@@ -46,7 +46,7 @@ def setup_options(args)
       options[:log_level] = "debug"
     end
 
-    opts.on("-c", "--cut_off",Integer, "Set cut_off default is 1000") do |v|
+    opts.on("-c", "--cut_off",:REQUIRED, Integer, "Set cut_off default is 1000") do |v|
       options[:cut_off] = v
     end
 
@@ -102,8 +102,6 @@ def read_summary(fusion_table,out_file,gene_anno,cut_off,junctions)
     'Pos 2', 'Refseq 1', 'Refseq 2', 'Junctions?'
   i = 1
 
-
-
   tab_file_h = File.open(fusion_table)
   out_file_h = File.open(out_file,'w')
   tab_file_h.each do |line|
@@ -130,7 +128,7 @@ def read_summary(fusion_table,out_file,gene_anno,cut_off,junctions)
       pos1,Spreadsheet::Link.new(gene_sym_2_link,gene_sym_2), pos2, refseq_1,
       refseq_2, junc
     i += 1
-    break if i >= cut_off
+    break if i > cut_off
   end
 
   book.write out_file
@@ -142,7 +140,7 @@ def run(argv)
   setup_logger(options[:log_level])
   $logger.debug(options)
   $logger.debug(argv)
-
+  #puts options[:cut_off]
   if options[:junction_files] != ""
     junctions = find_junctions(options[:junction_files])
   else
@@ -152,6 +150,7 @@ def run(argv)
   gene_anno = read_table(argv[1])
   #$logger.debug(gene_anno)
   #$logger.debug(gene_anno["NM_014513"][:chrom])
+  #puts options[:cut_off]
   read_summary(argv[0],options[:out_file],gene_anno,options[:cut_off],junctions)
 
 end
