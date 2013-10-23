@@ -74,10 +74,10 @@ def run_bl2seq(gene1,gene2)
     line.chomp!
     next if line =~ /^#/
     fields = line.split("\t")
-    score = fields[-1]
-    identities = fields[2]
-    expect = fields[-2]
-    alignment_length = fields[3]
+    score = fields[-1].to_f
+    identities = fields[2].to_f
+    expect = fields[-2].to_f
+    alignment_length = fields[3].to_i
     break
   end
   [expect, identities,score,  alignment_length]
