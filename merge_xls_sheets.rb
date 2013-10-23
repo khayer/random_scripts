@@ -26,7 +26,7 @@ def setup_options(args)
     :junction_files => ""}
 
   opt_parser = OptionParser.new do |opts|
-    opts.banner = "Usage: #{$0} [options] real.xls sim.xls"
+    opts.banner = "Usage: #{$0} [options] real.xls sim.xls index_file"
     opts.separator ""
     opts.separator "xls files produced by fusion_table.rb."
 
@@ -54,7 +54,7 @@ def setup_options(args)
     #end
   end
 
-  args = ["-h"] if args.length == 0
+  args = ["-h"] if args.length < 3
   opt_parser.parse!(args)
   raise "Please specify the sam files" if args.length == 0
   options
@@ -66,7 +66,8 @@ def merge(real,sim,out_file,cut_off)
   grey = Spreadsheet::Format.new :pattern_fg_color => :grey, :pattern => 1
   sheet1 = book.create_worksheet
   sheet1.row(0).push 'Counts', 'Gen sym 1', 'Pos 1', 'Gen sym 2',
-    'Pos 2', 'Refseq 1', 'Refseq 2', 'Junctions?'
+    'Pos 2', 'Refseq 1', 'Refseq 2', 'Junctions?', 'E-value', 'Identity',
+    'Bit Score', 'Ali Length'
   i = 1
 
 
@@ -88,13 +89,16 @@ def merge(real,sim,out_file,cut_off)
   sheet_real.each 1 do |row|
     s = Set.new [row[5],row[6]]
 
-    run_bl2seq(row[5],row[6])
+    expect, identities,score,  alignment_length = run_bl2seq(row[5],row[6])
     if info.include?(s)
       sheet1.row(i).default_format = grey
       #sheet1.row(i).set_format(grey)
-      sheet1.update_row i, row[0],row[1],row[2],info[s][0],info[s][1],info[s][-1]
+      sheet1.update_row i, row[0],row[1],row[2],row[3],row[4],row[5],
+        row[6],row[7],expect, identities,score,  alignment_length,
+        info[s][0],info[s][1],info[s][2],info[s][3],info[s][4],info[s][7]
     else
-      sheet1.update_row i, row[0],row[1],row[2]
+      sheet1.update_row i, row[0],row[1],row[2],row[3],row[4],row[5],
+        row[6],row[7],expect, identities,score,  alignment_length
     end
     i += 1
   end
@@ -105,17 +109,24 @@ def merge(real,sim,out_file,cut_off)
 
     `samtools faidx #{$index_file} #{gene1}> tmp1.fa`
     `samtools faidx #{$index_file} #{gene2}> tmp2.fa`
-    out = `bl2seq -i tmp1.fa -j tmp2.fa -p blastn`
+    out = `bl2seq -i tmp1.fa -j tmp2.fa -p blastn -D 1`
 
     score = ""
     identities = ""
     expect = ""
-    strand = ""
+    alignment_length = ""
     out.each do |line|
       line.chomp!
-      if line =~ /Score/
-        score = line.split("Score = ")[1]
+      next if line =~ "^##"
+      fields = line.split("\t")
+      score = fields[-1]
+      identities = fields[2]
+      expect = fields[-2]
+      alignment_length = fields[3]
+      break
     end
+    [expect, identities,score,  alignment_length]
+  end
 
   #tab_file_h.each do |line|
   #  line.chomp!
@@ -154,6 +165,7 @@ def run(argv)
   setup_logger(options[:log_level])
   $logger.debug(options)
   $logger.debug(argv)
+  $index_file = argv[2]
 
   #puts junctions
   #gene_anno = read_table(argv[1])
