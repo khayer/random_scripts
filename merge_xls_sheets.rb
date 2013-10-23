@@ -70,7 +70,7 @@ def run_bl2seq(gene1,gene2)
   identities = ""
   expect = ""
   alignment_length = ""
-  out.each do |line|
+  out.split("\n").each do |line|
     line.chomp!
     next if line =~ "^##"
     fields = line.split("\t")
