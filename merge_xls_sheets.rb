@@ -65,7 +65,7 @@ def run_bl2seq(gene1,gene2)
   gene2 = "hg19_refGene_#{gene2}"
   `samtools faidx #{$index_file} #{gene1}> tmp1.fa`
   `samtools faidx #{$index_file} #{gene2}> tmp2.fa`
-  out = `bl2seq -i tmp1.fa -j tmp2.fa -p blastn -D 1`
+  out = `bl2seq -F F -i tmp1.fa -j tmp2.fa -p blastn -D 1`
   score = ""
   identities = ""
   expect = ""
