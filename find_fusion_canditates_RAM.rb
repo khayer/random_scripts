@@ -73,6 +73,7 @@ def read_samfiles(sam_files,out_file)
     #fwd_info[fwd_fields[0]] = [] unless fwd_info[fwd_fields[0]]
     next if fwd_fields == "*"
     $logger.debug("fwd_line2: " + fwd_line)
+    fwd_fields[0].gsub!(/[ab]/,"")
     fwd_info[fwd_fields[0]] = fwd_fields[2]
     fwd_sequences[fwd_fields[0]]  = fwd_fields[9]
   end
@@ -84,6 +85,7 @@ def read_samfiles(sam_files,out_file)
   rev.each do |rev_line|
     next unless rev_line =~ /NH:i:1/
     rev_fields = rev_line.split("\t")
+    rev_fields[0].gsub!(/[ab]/,"")
     name = rev_fields[0] if name == "*"
     found = false
     if fwd_info[rev_fields[0]] == rev_fields[2] || fwd_info[rev_fields[0]] == "*" || rev_fields[2] == "*" || !fwd_info[rev_fields[0]]
