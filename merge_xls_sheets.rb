@@ -2,6 +2,7 @@
 require 'optparse'
 require 'logger'
 require 'spreadsheet'
+require 'set'
 
 $logger = Logger.new(STDERR)
 
@@ -58,44 +59,72 @@ def setup_options(args)
   options
 end
 
-def merge(argv[0],argv[1],options[:out_file],options[:cut_off])
-def read_summary(fusion_table,out_file,gene_anno,cut_off,junctions)
+def merge(real,sim,out_file,cut_off)
   book = Spreadsheet::Workbook.new
+  bold = Spreadsheet::Format.new :weight => :bold
+  grey = Spreadsheet::Format.new :pattern_fg_color => :grey, :pattern => 1
   sheet1 = book.create_worksheet
   sheet1.row(0).push 'Counts', 'Gen sym 1', 'Pos 1', 'Gen sym 2',
     'Pos 2', 'Refseq 1', 'Refseq 2', 'Junctions?'
   i = 1
 
-  tab_file_h = File.open(fusion_table)
-  out_file_h = File.open(out_file,'w')
-  tab_file_h.each do |line|
-    line.chomp!
-    next if line == ""
-    counts, refseq_1, refseq_2 = line.split(" ")
-    refseq_2.gsub!(/^hg19_refGene_/,"")
-    refseq_1.gsub!(/^hg19_refGene_/,"")
-    #$logger.debug("#{refseq_1} and #{refseq_2}")
-    gene_sym_1 = gene_anno[refseq_1][:name2]
-    gene_sym_1_link = make_link(gene_sym_1)
-    gene_sym_2 = gene_anno[refseq_2][:name2]
-    gene_sym_2_link = make_link(gene_sym_2)
 
-    if junctions
-      s = Set.new [refseq_1,refseq_2]
-      junc = junctions[s]
-    else
-      junc = "n/a"
-    end
-    pos1 = "#{gene_anno[refseq_1][:chrom]}:#{gene_anno[refseq_1][:txStart]}-#{gene_anno[refseq_1][:txEnd]}"
-    pos2 = "#{gene_anno[refseq_2][:chrom]}:#{gene_anno[refseq_2][:txStart]}-#{gene_anno[refseq_2][:txEnd]}"
-    sheet1.update_row i, counts, Spreadsheet::Link.new(gene_sym_1_link,gene_sym_1),
-      pos1,Spreadsheet::Link.new(gene_sym_2_link,gene_sym_2), pos2, refseq_1,
-      refseq_2, junc
-    i += 1
-    break if i >= cut_off
+  book_sim = Spreadsheet.open(sim)
+  sheet_sim = book_sim.worksheet 0
+
+  info = {}
+  sheet_sim.each 1 do |row|
+    #puts row[5]
+    #puts row[6]
+    s = Set.new [row[5],row[6]]
+    info[s] = row
   end
 
+  book_real = Spreadsheet.open(real)
+  sheet_real = book_real.worksheet 0
+
+  i = 1
+  sheet_real.each 1 do |row|
+    s = Set.new [row[5],row[6]]
+    if info.include?(s)
+      sheet1.row(i).default_format = grey
+      #sheet1.row(i).set_format(grey)
+      sheet1.update_row i, row[0],row[1],row[2],info[s][0],info[s][1],info[s][-1]
+    else
+      sheet1.update_row i, row[0],row[1],row[2]
+    end
+    i += 1
+  end
+
+  #tab_file_h.each do |line|
+  #  line.chomp!
+  #  next if line == ""
+  #  counts, refseq_1, refseq_2 = line.split(" ")
+  #  refseq_2.gsub!(/^hg19_refGene_/,"")
+  #  refseq_1.gsub!(/^hg19_refGene_/,"")
+  #  #$logger.debug("#{refseq_1} and #{refseq_2}")
+  #  gene_sym_1 = gene_anno[refseq_1][:name2]
+  #  gene_sym_1_link = make_link(gene_sym_1)
+  #  gene_sym_2 = gene_anno[refseq_2][:name2]
+  #  gene_sym_2_link = make_link(gene_sym_2)
+#
+  #  if junctions
+  #    s = Set.new [refseq_1,refseq_2]
+  #    junc = junctions[s]
+  #  else
+  #    junc = "n/a"
+  #  end
+  #  pos1 = "#{gene_anno[refseq_1][:chrom]}:#{gene_anno[refseq_1][:txStart]}-#{gene_anno[refseq_1][:txEnd]}"
+  #  pos2 = "#{gene_anno[refseq_2][:chrom]}:#{gene_anno[refseq_2][:txStart]}-#{gene_anno[refseq_2][:txEnd]}"
+  #  sheet1.update_row i, counts, Spreadsheet::Link.new(gene_sym_1_link,gene_sym_1),
+  #    pos1,Spreadsheet::Link.new(gene_sym_2_link,gene_sym_2), pos2, refseq_1,
+  #    refseq_2, junc
+  #  i += 1
+  #  break if i >= cut_off
+  #end
+  #out_file = File.open(out,'w')
   book.write out_file
+  #out_file.close()
 end
 
 
