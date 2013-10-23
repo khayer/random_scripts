@@ -60,6 +60,30 @@ def setup_options(args)
   options
 end
 
+def run_bl2seq(gene1,gene2)
+  gene1 = "hg19_refGene_#{gene1}"
+  gene2 = "hg19_refGene_#{gene2}"
+  `samtools faidx #{$index_file} #{gene1}> tmp1.fa`
+  `samtools faidx #{$index_file} #{gene2}> tmp2.fa`
+  out = `bl2seq -i tmp1.fa -j tmp2.fa -p blastn -D 1`
+  score = ""
+  identities = ""
+  expect = ""
+  alignment_length = ""
+  out.each do |line|
+    line.chomp!
+    next if line =~ "^##"
+    fields = line.split("\t")
+    score = fields[-1]
+    identities = fields[2]
+    expect = fields[-2]
+    alignment_length = fields[3]
+    break
+  end
+  [expect, identities,score,  alignment_length]
+end
+
+
 def merge(real,sim,out_file,cut_off)
   book = Spreadsheet::Workbook.new
   bold = Spreadsheet::Format.new :weight => :bold
@@ -89,7 +113,7 @@ def merge(real,sim,out_file,cut_off)
   sheet_real.each 1 do |row|
     s = Set.new [row[5],row[6]]
 
-    expect, identities,score,  alignment_length = run_bl2seq(row[5],row[6])
+    expect, identities,score,  alignment_length = run_bl2seq(row[5].to_s,row[6].to_s)
     if info.include?(s)
       sheet1.row(i).default_format = grey
       #sheet1.row(i).set_format(grey)
@@ -103,30 +127,7 @@ def merge(real,sim,out_file,cut_off)
     i += 1
   end
 
-  def run_bl2seq(gene1,gene2)
-    gene1 = "hg19_refGene_#{gene1}"
-    gene2 = "hg19_refGene_#{gene2}"
 
-    `samtools faidx #{$index_file} #{gene1}> tmp1.fa`
-    `samtools faidx #{$index_file} #{gene2}> tmp2.fa`
-    out = `bl2seq -i tmp1.fa -j tmp2.fa -p blastn -D 1`
-
-    score = ""
-    identities = ""
-    expect = ""
-    alignment_length = ""
-    out.each do |line|
-      line.chomp!
-      next if line =~ "^##"
-      fields = line.split("\t")
-      score = fields[-1]
-      identities = fields[2]
-      expect = fields[-2]
-      alignment_length = fields[3]
-      break
-    end
-    [expect, identities,score,  alignment_length]
-  end
 
   #tab_file_h.each do |line|
   #  line.chomp!
