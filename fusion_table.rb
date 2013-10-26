@@ -123,6 +123,7 @@ def read_summary(fusion_table,out_file,gene_anno,cut_off,junctions)
       pos1 = "#{gene_anno[refseq_1][:chrom]}:#{gene_anno[refseq_1][:txStart]}-#{gene_anno[refseq_1][:txEnd]}"
     else
       pos1 = "N/A"
+      gene_sym_1 = "N/A"
       gene_sym_1_link = "N/A"
     end
     if gene_anno[refseq_2]
@@ -130,6 +131,7 @@ def read_summary(fusion_table,out_file,gene_anno,cut_off,junctions)
       gene_sym_2_link = make_link(gene_sym_2)
       pos2 = "#{gene_anno[refseq_2][:chrom]}:#{gene_anno[refseq_2][:txStart]}-#{gene_anno[refseq_2][:txEnd]}"
     else
+      gene_sym_2 = "N/A"
       gene_sym_2_link = "N/A"
       pos2 = "N/A"
     end
