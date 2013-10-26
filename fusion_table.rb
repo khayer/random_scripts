@@ -117,10 +117,18 @@ def read_summary(fusion_table,out_file,gene_anno,cut_off,junctions)
       refseq_1 = refseq_1.split("|")[-1].split(".")[0]
     end
     $logger.debug("#{refseq_1} and #{refseq_2}")
-    gene_sym_1 = gene_anno[refseq_1][:name2]
-    gene_sym_1_link = make_link(gene_sym_1)
-    gene_sym_2 = gene_anno[refseq_2][:name2]
-    gene_sym_2_link = make_link(gene_sym_2)
+    if gene_anno[refseq_1][:name2]
+      gene_sym_1 = gene_anno[refseq_1][:name2]
+      gene_sym_1_link = make_link(gene_sym_1)
+    else
+      gene_sym_1_link = "N/A"
+    end
+    if gene_anno[refseq_2][:name2]
+      gene_sym_2 = gene_anno[refseq_2][:name2]
+      gene_sym_2_link = make_link(gene_sym_2)
+    else
+      gene_sym_2_link = "N/A"
+    end
 
     if junctions
       s = Set.new [refseq_1,refseq_2]
