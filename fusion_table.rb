@@ -108,8 +108,14 @@ def read_summary(fusion_table,out_file,gene_anno,cut_off,junctions)
     line.chomp!
     next if line == ""
     counts, refseq_1, refseq_2 = line.split(" ")
-    refseq_2.gsub!(/^hg19_refGene_/,"")
-    refseq_1.gsub!(/^hg19_refGene_/,"")
+    if refseq_2 =~ /^hg19/
+      refseq_2.gsub!(/^hg19_refGene_/,"")
+      refseq_1.gsub!(/^hg19_refGene_/,"")
+    end
+    if refseq_2 =~ /^gi/
+      refseq_2 = refseq_2.split("|")[-1].split(".")[0]
+      refseq_1 = refseq_1.split("|")[-1].split(".")[0]
+    end
     $logger.debug("#{refseq_1} and #{refseq_2}")
     gene_sym_1 = gene_anno[refseq_1][:name2]
     gene_sym_1_link = make_link(gene_sym_1)
