@@ -83,6 +83,10 @@ def find_junctions(junction_files)
       gene1,d,d,gene2 = line.split("\t")
       gene1.gsub!(/^hg19_refGene_/,"")
       gene2.gsub!(/^hg19_refGene_/,"")
+      if gene2 =~ /^gi/
+        gene2 = gene2.split("|")[-1].split(".")[0]
+        gene1 = gene1.split("|")[-1].split(".")[0]
+      end
       next if gene1 == gene2
       #$logger.debug(gene1)
       #$logger.debug(gene2)
