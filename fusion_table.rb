@@ -120,24 +120,26 @@ def read_summary(fusion_table,out_file,gene_anno,cut_off,junctions)
     if gene_anno[refseq_1]
       gene_sym_1 = gene_anno[refseq_1][:name2]
       gene_sym_1_link = make_link(gene_sym_1)
+      pos1 = "#{gene_anno[refseq_1][:chrom]}:#{gene_anno[refseq_1][:txStart]}-#{gene_anno[refseq_1][:txEnd]}"
     else
+      pos1 = "N/A"
       gene_sym_1_link = "N/A"
     end
     if gene_anno[refseq_2]
       gene_sym_2 = gene_anno[refseq_2][:name2]
       gene_sym_2_link = make_link(gene_sym_2)
+      pos2 = "#{gene_anno[refseq_2][:chrom]}:#{gene_anno[refseq_2][:txStart]}-#{gene_anno[refseq_2][:txEnd]}"
     else
       gene_sym_2_link = "N/A"
+      pos2 = "N/A"
     end
 
     if junctions
       s = Set.new [refseq_1,refseq_2]
       junc = junctions[s]
     else
-      junc = "n/a"
+      junc = "N/A"
     end
-    pos1 = "#{gene_anno[refseq_1][:chrom]}:#{gene_anno[refseq_1][:txStart]}-#{gene_anno[refseq_1][:txEnd]}"
-    pos2 = "#{gene_anno[refseq_2][:chrom]}:#{gene_anno[refseq_2][:txStart]}-#{gene_anno[refseq_2][:txEnd]}"
     sheet1.update_row i, counts, Spreadsheet::Link.new(gene_sym_1_link,gene_sym_1),
       pos1,Spreadsheet::Link.new(gene_sym_2_link,gene_sym_2), pos2, refseq_1,
       refseq_2, junc
