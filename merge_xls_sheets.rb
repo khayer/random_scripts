@@ -62,10 +62,12 @@ end
 
 def run_bl2seq(gene1,gene2)
   name1 = `grep #{gene1} #{$index_file}`.split(" ")[0].delete(">")
+  $logger.debug("name1 #{name1}")
   name2 = `grep #{gene2} #{$index_file}`.split(" ")[0].delete(">")
   #gene1 = "hg19_refGene_#{gene1}"
   #gene2 = "hg19_refGene_#{gene2}"
   gene1 = name1.split("|").join("\|")
+  $logger.debug("gene1 #{gene1}")
   gene2 = name1.split("|").join("\|")
   `samtools faidx #{$index_file} #{gene1} > tmp1.fa`
   `samtools faidx #{$index_file} #{gene2} > tmp2.fa`
