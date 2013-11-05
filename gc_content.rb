@@ -113,7 +113,7 @@ def get_gene_length(info)
   length
 end
 
-def process(gene_info,fasta_file)
+def process(gene_info,fasta_file,outfile)
   fai_index = read_index("#{fasta_file}.fai")
   puts "\tlength\tgccontent"
   fasta_file = File.open(fasta_file).read
@@ -123,7 +123,7 @@ def process(gene_info,fasta_file)
     i += 1
     gc_content = calculate_gc_content(fai_index,fasta_file,info)
     length = get_gene_length(info)
-    puts "#{id}\t#{length}\t#{gc_content}"
+    outfile.puts "#{id}\t#{length}\t#{gc_content}"
   end
 end
 
@@ -135,7 +135,8 @@ def run(argv)
   $logger.debug("Reading gtf file")
   gene_info = read_gtf_file(argv[0])
   $logger.debug("Processing ...")
-  gene_info = process(gene_info,argv[1])
+  outfile = File.open(options[:out_file], "w")
+  gene_info = process(gene_info,argv[1],outfile)
 
 end
 
