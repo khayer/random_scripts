@@ -97,8 +97,9 @@ end
 
 def calculate_gc_content(fai_index,fasta_file,info)
   sequence = ""
+
   info[:starts].each_with_index do |start,i|
-    sequence += k = File.open(fasta_file).read[fai_index[info[:chr]][:start]..fai_index[info[:chr]][:stop]][start..info[:stops][i]]
+    sequence += fasta_file[fai_index[info[:chr]][:start]..fai_index[info[:chr]][:stop]][start..info[:stops][i]]
   end
   gc_count = sequence.count("GgCc")
   gc_content = gc_count/sequence.length.to_f
@@ -115,6 +116,7 @@ end
 def process(gene_info,fasta_file)
   fai_index = read_index("#{fasta_file}.fai")
   puts "\tlength\tgccontent"
+  fasta_file = File.open(fasta_file).read
   i = 0
   gene_info.each_pair do |id, info|
     $logger.debug("Processed #{i} id's") if i % 1000 == 0
