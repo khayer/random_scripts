@@ -49,8 +49,8 @@ def setup_options(args)
   options
 end
 
-def add_gene(gene_info,chromosome,starts,stops)
-  gene_info[gene_info] = {:chr => chromosome, :starts => starts,
+def add_gene(gene_info,name,chromosome,starts,stops)
+  gene_info[name] = {:chr => chromosome, :starts => starts,
     :stops => stops, :gc_content => 0.5}
 end
 
@@ -61,6 +61,7 @@ def read_gtf_file(gtf_file)
   starts = []
   stops = []
   chromosome = nil
+  identifier = ""
   File.open(gtf_file).each do |line|
     line.chomp!
     next unless line =~ /exon/
@@ -68,15 +69,17 @@ def read_gtf_file(gtf_file)
     identifier = /\w*-\w*/.match(identifier)[0]
     last_name = identifier unless last_name
     if last_name != identifier
-      add_gene(gene_info,chromosome,starts,stops)
+      add_gene(gene_info,last_name,chromosome,starts,stops)
       starts = []
       stops = []
+      last_name = identifier
     end
     starts << start.to_i
     stops << stop.to_i
     chromosome = chr
+
   end
-  add_gene(gene_info,chromosome,starts,stops)
+  add_gene(gene_info,identifier,chromosome,starts,stops)
   gene_info
 end
 
