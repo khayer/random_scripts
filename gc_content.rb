@@ -84,7 +84,7 @@ def read_index(fai_file)
   fai_index = {}
   File.open(fai_file).each do |line|
     line.chomp!
-    chr,length,start = line.splits("\t")
+    chr,length,start = line.split("\t")
     length = length.to_i
     start = start.to_i
     fai_index[chr] = {:start => start, :stop => start+length-1}
