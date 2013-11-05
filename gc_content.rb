@@ -112,7 +112,10 @@ end
 def process(gene_info,fasta_file)
   fai_index = read_index("#{fasta_file}.fai")
   puts "\tlength\tgccontent"
+  i = 0
   gene_info.each_pair do |id, info|
+    $logger.debug("Processed #{i} id's") if i % 1000 == 0
+    i += 1
     gc_content = calculate_gc_content(fai_index,fasta_file,info)
     length = get_gene_length(info)
     puts "#{id}\t#{length}\t#{gc_content}"
@@ -124,9 +127,10 @@ def run(argv)
   setup_logger(options[:log_level])
   $logger.debug(options)
   $logger.debug(argv)
-
+  $logger.debug("Reading gtf file")
   gene_info = read_gtf_file(argv[0])
-  gene_info = process(gene_info,fasta_file)
+  $logger.debug("Processing ...")
+  gene_info = process(gene_info,argv[1])
 
 end
 
