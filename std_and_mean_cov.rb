@@ -32,8 +32,8 @@ def setup_options(args)
     opts.banner = "Usage: #{$0} [options] union.cov"
     opts.separator ""
 
-    opts.on("-p", "--out_prefix [OUT_PREFIX]",:REQUIRED,String,  "Out prefix") do |gtf_file|
-      options[:gtf_file] = gtf_file
+    opts.on("-p", "--out_prefix [OUT_PREFIX]",:REQUIRED,String,  "Out prefix") do |p|
+      options[:out_prefix] = p
     end
 
     opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
