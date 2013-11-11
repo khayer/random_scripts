@@ -63,9 +63,9 @@ def read_coverage(cov_file,groups,out_prefix)
   g = groups.split(",").map { |e| e.to_i }
   file_h = []
   g.each_with_index do |e, i|
-    file_h << File.open("#{out_prefix}_group#{i}_upper")
-    file_h << File.open("#{out_prefix}_group#{i}_middle")
-    file_h << File.open("#{out_prefix}_group#{i}_lower")
+    file_h << File.open("#{out_prefix}_group#{i}_upper","w")
+    file_h << File.open("#{out_prefix}_group#{i}_middle","w")
+    file_h << File.open("#{out_prefix}_group#{i}_lower","w")
   end
   File.open(cov_file).each do |line|
     line.chomp!
