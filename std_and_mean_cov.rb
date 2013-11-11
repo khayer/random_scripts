@@ -75,10 +75,11 @@ def read_coverage(cov_file,groups,out_prefix)
     position = fields[0..2].join("\t")
     g.each_with_index do |e, i|
       samples = []
-      for i in 0...e
-        samples << fields[i+3].to_i
+      for k in 0...e
+        samples << fields[k+3].to_i
       end
       $logger.debug(samples)
+      $logger.debug(file_h[i*3])
       file_h[i*3].puts "#{position}\t#{(samples.mean+samples.standard_deviation).round}"
       file_h[i*3+1].puts "#{position}\t#{(samples.mean).round}"
       file_h[i*3+2].puts "#{position}\t#{(samples.mean-samples.standard_deviation).round}"
