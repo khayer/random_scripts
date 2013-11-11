@@ -67,6 +67,7 @@ def read_coverage(cov_file,groups,out_prefix)
     file_h << File.open("#{out_prefix}_group#{i}_middle","w")
     file_h << File.open("#{out_prefix}_group#{i}_lower","w")
   end
+  $logger.debug(file_h)
   File.open(cov_file).each do |line|
     line.chomp!
     next if line =~ /chrom/
@@ -77,6 +78,7 @@ def read_coverage(cov_file,groups,out_prefix)
       for i in 0...e
         samples << fields[i+3].to_i
       end
+      $logger.debug(samples)
       file_h[i*3].puts "#{position}\t#{(samples.mean+samples.standard_deviation).round}"
       file_h[i*3+1].puts "#{position}\t#{(samples.mean).round}"
       file_h[i*3+2].puts "#{position}\t#{(samples.mean-samples.standard_deviation).round}"
