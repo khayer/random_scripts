@@ -12,7 +12,7 @@ test/tmp
 test/version_tmp
 tmp
 *.bed
-
+hg19_refseq_genes_full*
 # YARD artifacts
 .yardoc
 _yardoc

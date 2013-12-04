@@ -80,38 +80,63 @@ def match_junctions(junctions,gene_info,out_file)
     chrom, chromStart, chromEnd, name, score, strand, thickStart,
       thickEnd, itemRgb, blockCount, blockSizes, blockStarts = line.split(" ")
     next if itemRgb == "16,78,139"
+    next unless score.to_i >= 10
     start = chromStart.to_i + blockSizes.split(",")[0].to_i
     stop = chromEnd.to_i - blockSizes.split(",")[1].to_i
-    puts start
-    puts stop
+    #puts start
+    #puts stop
     a = gene_info.keys
-    puts a.length
+    #puts a.length
     a.keep_if { |v| v[:chrom] == chrom }  #=> ["a", "e"]
-    puts a.length
+    #puts a.length
     a.keep_if { |v| v[:txStart].to_i <= start && v[:txEnd].to_i >= stop  }  #=> ["a", "e"]
-    puts a.length
-    num_skipped_exons = 0
-    new_exon = false
-    same_exon = false
+    #puts a.length
+    
     novel = false
+    novel_genes = []
     a.each do |gene_key|
       gene = gene_info[gene_key]
       exonStarts = gene[:exonStarts].split(",").map { |e| e.to_i }
       exonEnds = gene[:exonEnds].split(",").map { |e| e.to_i }
       novel = true
-      for i in 0...gene[:exonCount].to_i
-        novel = false if exonStarts[i+1] == stop && exonEnds[i] == start
+      for k in 0...gene[:exonCount].to_i
+        novel = false if exonStarts[k+1] == stop && exonEnds[k] == start
         break unless novel
       end
+      novel_genes << gene_key if novel
+        
     end
-    next unless novel
-    puts gene_info[a[0]]
+    next unless novel_genes.length > 0
+    #puts gene_info[novel_genes[0]]
 
-    exit
-    #sheet1.update_row i, counts, Spreadsheet::Link.new(gene_sym_1_link,gene_sym_1),
-    #  pos1,Spreadsheet::Link.new(gene_sym_2_link,gene_sym_2), pos2, refseq_1,
-    # refseq_2, junc
-    i += 1
+    novel_genes.each do |gene_key|
+      num_skipped_exons = 0
+      new_exon = false
+      same_exon = false
+      gene = gene_info[gene_key]
+      exonStarts = gene[:exonStarts].split(",").map { |e| e.to_i }
+      exonEnds = gene[:exonEnds].split(",").map { |e| e.to_i }
+      if exonStarts.include?(stop) && exonEnds.include?(start)
+        index_stop = exonStarts.index(stop)
+        index_start = exonEnds.index(start)
+        num_skipped_exons = index_stop - index_start - 1
+        $logger.debug("Num of skipped exons: #{num_skipped_exons}")
+      elsif exonStarts.include?(stop) || exonEnds.include?(start)
+        same_exon = true
+        $logger.debug("Same exon") 
+      else
+        new_exon = true
+        $logger.debug("It's a new exon!")
+      end
+      pos = "#{gene[:chrom]}:#{start}-#{stop}"
+      sheet1.update_row i, pos, gene[:name2],num_skipped_exons,
+        new_exon, same_exon, score.to_i, gene_key[:name], 
+        exonStarts.join(","), exonEnds.join(",")
+      i += 1
+    end
+    #sheet1.row(0).push 'Pos', 'ID', '# Skipped Exons', 'New Exon', 'Same exon',
+    #'# reads', 'Refseq ID'
+
     #break if i > cut_off
   end
 
