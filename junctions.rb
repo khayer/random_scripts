@@ -156,11 +156,26 @@ def match_junctions(junctions,gene_info,out_file)
   book.write out_file
 end
 
+def read_membrane_file(mebrane_file)
+  membrane_names = {}
+
+  File.open(mebrane_file).each do |line|
+    if line == "" && !first
+      membrane_names[name] = info
+      name = ""
+      info = ""
+    end
+  end
+  membrane_names
+end
+
 def run(argv)
   options = setup_options(argv)
   setup_logger(options[:log_level])
   $logger.debug(options)
   $logger.debug(argv)
+
+  membrane_names = read_membrane_file(options[:mebrane_file]) if options[:mebrane_file] != ""
 
   gene_info = read_annotation(argv[1])
   match_junctions(argv[0],gene_info,options[:out_file])
