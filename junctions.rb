@@ -68,7 +68,7 @@ end
 def match_junctions(junctions,gene_info,out_file)
   book = Spreadsheet::Workbook.new
   sheet1 = book.create_worksheet
-  sheet1.row(0).push 'Pos', 'ID', '# Skipped Exons', 'New Exon', 'Same exon',
+  sheet1.row(0).push 'Pos', 'ID', '# Skipped Exons', 'New Exon', 'Within exon',
     '# reads', 'Refseq ID'
   i = 1
 
@@ -112,7 +112,7 @@ def match_junctions(junctions,gene_info,out_file)
     novel_genes.each do |gene_key|
       num_skipped_exons = 0
       new_exon = false
-      same_exon = false
+      within_exon = false
       gene = gene_info[gene_key]
       exonStarts = gene[:exonStarts].split(",").map { |e| e.to_i }
       exonEnds = gene[:exonEnds].split(",").map { |e| e.to_i }
@@ -121,16 +121,23 @@ def match_junctions(junctions,gene_info,out_file)
         index_start = exonEnds.index(start)
         num_skipped_exons = index_stop - index_start - 1
         $logger.debug("Num of skipped exons: #{num_skipped_exons}")
-      elsif exonStarts.include?(stop) || exonEnds.include?(start)
-        same_exon = true
-        $logger.debug("Same exon") 
       else
-        new_exon = true
-        $logger.debug("It's a new exon!")
+        within_start = false
+        within_stop = false
+        for k in 0...gene[:exonCount].to_i
+          novel = false if exonStarts[k+1] == stop && exonEnds[k] == start
+          break unless novel
+        end
+
+        if within_start && within_stop
+          within_exon = true
+        else 
+          new_exon = true
+        end
       end
       pos = "#{gene[:chrom]}:#{start}-#{stop}"
       sheet1.update_row i, pos, gene[:name2],num_skipped_exons,
-        new_exon, same_exon, score.to_i, gene_key[:name], 
+        new_exon, within_exon, score.to_i, gene_key[:name], 
         exonStarts.join(","), exonEnds.join(",")
       i += 1
     end
