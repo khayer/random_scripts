@@ -21,8 +21,7 @@ def setup_logger(loglevel)
 end
 
 def setup_options(args)
-  options = {:out_file =>  "junctions_table.xls", :cut_off => 1000 }
-
+  options = {:out_file =>  "junctions_table.xls", :cut_off => 1000, :mebrane_file => ""}
   opt_parser = OptionParser.new do |opts|
     opts.banner = "Usage: junctions.rb [options] junctions.bed hg19_refseq_genes_anno.gtf"
     opts.separator ""
@@ -30,6 +29,12 @@ def setup_options(args)
       :REQUIRED,String,
       "File for the output, Default: junctions_canditates_table.xls") do |anno_file|
       options[:out_file] = anno_file
+    end
+
+    opts.on("-m", "--mebrane_file [MEMBRANE_FILE]",
+      :REQUIRED,String,
+      "Text with membrane genes.") do |anno_file|
+      options[:membrane_file] = anno_file
     end
 
     opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
@@ -91,7 +96,7 @@ def match_junctions(junctions,gene_info,out_file)
     #puts a.length
     a.keep_if { |v| v[:txStart].to_i <= start && v[:txEnd].to_i >= stop  }  #=> ["a", "e"]
     #puts a.length
-    
+
     novel = false
     novel_genes = []
     a.each do |gene_key|
@@ -104,7 +109,7 @@ def match_junctions(junctions,gene_info,out_file)
         break unless novel
       end
       novel_genes << gene_key if novel
-        
+
     end
     next unless novel_genes.length > 0
     #puts gene_info[novel_genes[0]]
@@ -125,24 +130,25 @@ def match_junctions(junctions,gene_info,out_file)
         within_start = false
         within_stop = false
         for k in 0...gene[:exonCount].to_i
-          novel = false if exonStarts[k+1] == stop && exonEnds[k] == start
-          break unless novel
+          within_start = true if exonStarts[k] <= start && exonEnds[k] >= start
+          within_stop = true if exonStarts[k] <= stop && exonEnds[k] >= stop
+          break if within_start && within_stop
         end
 
         if within_start && within_stop
           within_exon = true
-        else 
+        else
           new_exon = true
         end
       end
       pos = "#{gene[:chrom]}:#{start}-#{stop}"
+      #sheet1.row(0).push 'Pos', 'ID', '# Skipped Exons', 'New Exon', 'Within exon',
+      #'# reads', 'Refseq ID'
       sheet1.update_row i, pos, gene[:name2],num_skipped_exons,
-        new_exon, within_exon, score.to_i, gene_key[:name], 
+        new_exon, within_exon, score.to_i, gene_key[:name],
         exonStarts.join(","), exonEnds.join(",")
       i += 1
     end
-    #sheet1.row(0).push 'Pos', 'ID', '# Skipped Exons', 'New Exon', 'Same exon',
-    #'# reads', 'Refseq ID'
 
     #break if i > cut_off
   end
