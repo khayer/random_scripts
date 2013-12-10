@@ -21,7 +21,7 @@ def setup_logger(loglevel)
 end
 
 def setup_options(args)
-  options = {:out_file =>  "junctions_table.xls", :cut_off => 1000, :mebrane_file => ""}
+  options = {:out_file =>  "junctions_table.xls", :cut_off => 1000, :membrane_file => ""}
   opt_parser = OptionParser.new do |opts|
     opts.banner = "Usage: junctions.rb [options] junctions.bed hg19_refseq_genes_anno.gtf"
     opts.separator ""
@@ -70,7 +70,7 @@ def read_annotation(anno_file)
   gene_info
 end
 
-def match_junctions(junctions,gene_info,out_file)
+def match_junctions(junctions,gene_info,out_file,membrane_names)
   book = Spreadsheet::Workbook.new
   sheet1 = book.create_worksheet
   sheet1.row(0).push 'Pos', 'ID', '# Skipped Exons', 'New Exon', 'Within exon',
@@ -100,7 +100,10 @@ def match_junctions(junctions,gene_info,out_file)
     novel = false
     novel_genes = []
     a.each do |gene_key|
+
       gene = gene_info[gene_key]
+      #puts gene[:name2]
+      next unless membrane_names.keys.include?(gene[:name2])
       exonStarts = gene[:exonStarts].split(",").map { |e| e.to_i }
       exonEnds = gene[:exonEnds].split(",").map { |e| e.to_i }
       novel = true
@@ -109,7 +112,7 @@ def match_junctions(junctions,gene_info,out_file)
         break unless novel
       end
       novel_genes << gene_key if novel
-
+      break if novel
     end
     next unless novel_genes.length > 0
     #puts gene_info[novel_genes[0]]
@@ -146,8 +149,9 @@ def match_junctions(junctions,gene_info,out_file)
       #'# reads', 'Refseq ID'
       sheet1.update_row i, pos, gene[:name2],num_skipped_exons,
         new_exon, within_exon, score.to_i, gene_key[:name],
-        exonStarts.join(","), exonEnds.join(",")
+        exonStarts.join(","), exonEnds.join(","), membrane_names[gene[:name2]]
       i += 1
+      break
     end
 
     #break if i > cut_off
@@ -156,14 +160,26 @@ def match_junctions(junctions,gene_info,out_file)
   book.write out_file
 end
 
-def read_membrane_file(mebrane_file)
+def read_membrane_file(membrane_file)
   membrane_names = {}
-
-  File.open(mebrane_file).each do |line|
+  first = true
+  name = ""
+  info = ""
+  File.open(membrane_file).each do |line|
+    line.chomp!
     if line == "" && !first
       membrane_names[name] = info
+      #puts membrane_names
+      #STDIN.gets
       name = ""
       info = ""
+    else
+      first = false
+      if line =~ /^[0-9]+.\s/
+        name = line.split(" ")[1]
+      else
+        info += line + ";" if line != ""
+      end
     end
   end
   membrane_names
@@ -175,10 +191,9 @@ def run(argv)
   $logger.debug(options)
   $logger.debug(argv)
 
-  membrane_names = read_membrane_file(options[:mebrane_file]) if options[:mebrane_file] != ""
-
+  membrane_names = read_membrane_file(options[:membrane_file]) if options[:membrane_file] != ""
   gene_info = read_annotation(argv[1])
-  match_junctions(argv[0],gene_info,options[:out_file])
+  match_junctions(argv[0],gene_info,options[:out_file],membrane_names)
 end
 
 if __FILE__ == $0
