@@ -185,13 +185,43 @@ def read_membrane_file(membrane_file)
   membrane_names
 end
 
+def read_uni_gene(uni_gene)
+  membrane_names = {}
+  first = true
+  name = ""
+  info = ""
+  File.open(membrane_file).each do |line|
+    line.chomp!
+    if line == "" && !first
+      membrane_names[name] = info
+      #puts membrane_names
+      #STDIN.gets
+      name = ""
+      info = ""
+    else
+      first = false
+      if line =~ /^[0-9]+.\s/
+        #name = line.split(" ")[1]
+        info = "line"
+      end
+      if line =~ /Homo sapiens$/
+        name = line.split(", ")[0]
+        #info += line + ";" if line != ""
+      end
+    end
+  end
+  membrane_names
+end
+
 def run(argv)
   options = setup_options(argv)
   setup_logger(options[:log_level])
   $logger.debug(options)
   $logger.debug(argv)
 
-  membrane_names = read_membrane_file(options[:membrane_file]) if options[:membrane_file] != ""
+  #membrane_names = read_membrane_file(options[:membrane_file]) if options[:membrane_file] != ""
+  membrane_names = read_uni_gene(options[:membrane_file]) if options[:membrane_file] != ""
+
   gene_info = read_annotation(argv[1])
   match_junctions(argv[0],gene_info,options[:out_file],membrane_names)
 end
