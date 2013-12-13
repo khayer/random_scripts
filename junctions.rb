@@ -202,7 +202,7 @@ def read_uni_gene(uni_gene)
       first = false
       if line =~ /^[0-9]+.\s/
         #name = line.split(" ")[1]
-        info = "line"
+        info = line
       end
       if line =~ /Homo sapiens$/
         name = line.split(", ")[0]
