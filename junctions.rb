@@ -190,7 +190,7 @@ def read_uni_gene(uni_gene)
   first = true
   name = ""
   info = ""
-  File.open(membrane_file).each do |line|
+  File.open(uni_gene).each do |line|
     line.chomp!
     if line == "" && !first
       membrane_names[name] = info
