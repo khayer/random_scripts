@@ -3,6 +3,7 @@ require 'optparse'
 require 'logger'
 require 'spreadsheet'
 require 'csv'
+require 'bio'
 
 $logger = Logger.new(STDERR)
 
@@ -23,7 +24,7 @@ end
 def setup_options(args)
   options = {:out_file =>  "junctions_table.xls", :cut_off => 1000, :membrane_file => ""}
   opt_parser = OptionParser.new do |opts|
-    opts.banner = "Usage: junctions.rb [options] junctions.bed hg19_refseq_genes_anno.gtf"
+    opts.banner = "Usage: junctions.rb [options] junctions.bed hg19_refseq_genes_anno.gtf fasta.fa"
     opts.separator ""
     opts.on("-o", "--out_file [OUT_FILE]",
       :REQUIRED,String,
@@ -70,13 +71,34 @@ def read_annotation(anno_file)
   gene_info
 end
 
-def match_junctions(junctions,gene_info,out_file,membrane_names)
+def read_index(fai_file)
+  fai_index = {}
+  File.open(fai_file).each do |line|
+    line.chomp!
+    chr,length,start = line.split("\t")
+    length = length.to_i
+    start = start.to_i
+    fai_index[chr] = {:start => start, :stop => start+length-1}
+  end
+  fai_index
+end
+
+def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
   book = Spreadsheet::Workbook.new
   sheet1 = book.create_worksheet
   sheet1.row(0).push 'Pos', 'ID', '# Skipped Exons', 'New Exon', 'Within exon',
     '# reads', 'Refseq ID'
-  i = 1
 
+  fai_index = read_index("#{fasta}.fai")
+  $logger.debug("FAI index: #{fai_index}")
+  #fasta_file = File.open("/Users/hayer/Downloads/mm9_ucsc.fa").read
+  fasta_file = File.open(fasta).read  #lines.map {|e| e.strip }.join("")
+  seq_hash = {}
+  fai_index.each_pair do |name, index|
+    seq_hash[name] = fasta_file[index[:start]..index[:stop]].delete("\n")
+  end
+  i = 1
+  #amino_change << Bio::Sequence::NA.new(code).translate
   tab_file_h = File.open(junctions)
   out_file_h = File.open(out_file,'w')
   tab_file_h.each do |line|
@@ -124,6 +146,35 @@ def match_junctions(junctions,gene_info,out_file,membrane_names)
       gene = gene_info[gene_key]
       exonStarts = gene[:exonStarts].split(",").map { |e| e.to_i }
       exonEnds = gene[:exonEnds].split(",").map { |e| e.to_i }
+      sequence_original = ""
+      sequence_novel = ""
+      for k in 0...gene[:exonCount].to_i
+        sequence_original += seq_hash[chr][exonStarts[k]...exonEnds[k]]
+        #if exonStarts[k] < start && exonEnds[k] < start
+        #  sequence_novel += seq_hash[chr][exonStarts[k]...exonEnds[k]]
+        #elsif exonStarts[k] < start && exonEnds[k] > start
+        #  sequence_novel += seq_hash[chr][exonStarts[k]...start]
+        #elsif exonEnds[k]
+      end
+      novelStarts = exonStarts.concat(stop)
+      novelStops = exonEnds.concat(start)
+      for k in 0...gene[:exonCount].to_i
+        #sequence_original += seq_hash[chr][exonStarts[k]...exonEnds[k]]
+        if stop < exonStarts[k]
+          novelStarts << stop
+        else
+          novelStarts << exonStarts[k]
+        end
+        for l in 0...gene[:exonCount].to_i
+
+        if exonStarts[k] < start && exonEnds[k] < start &&
+          exonStarts[k] < stop && exonEnds[k] < stop
+          novelStarts << exonStarts[k]
+          novelStops << exonEnds[k]
+        elsif exonStarts[k] < start && exonEnds[k] > start &&
+          sequence_novel += seq_hash[chr][exonStarts[k]...start]
+          elsif exonEnds[k]
+      end
       if exonStarts.include?(stop) && exonEnds.include?(start)
         index_stop = exonStarts.index(stop)
         index_start = exonEnds.index(start)
@@ -132,6 +183,7 @@ def match_junctions(junctions,gene_info,out_file,membrane_names)
       else
         within_start = false
         within_stop = false
+        sequence_original = ""
         for k in 0...gene[:exonCount].to_i
           within_start = true if exonStarts[k] <= start && exonEnds[k] >= start
           within_stop = true if exonStarts[k] <= stop && exonEnds[k] >= stop
@@ -153,10 +205,8 @@ def match_junctions(junctions,gene_info,out_file,membrane_names)
       i += 1
       break
     end
-
     #break if i > cut_off
   end
-
   book.write out_file
 end
 
@@ -218,12 +268,10 @@ def run(argv)
   setup_logger(options[:log_level])
   $logger.debug(options)
   $logger.debug(argv)
-
   #membrane_names = read_membrane_file(options[:membrane_file]) if options[:membrane_file] != ""
   membrane_names = read_uni_gene(options[:membrane_file]) if options[:membrane_file] != ""
-
   gene_info = read_annotation(argv[1])
-  match_junctions(argv[0],gene_info,options[:out_file],membrane_names)
+  match_junctions(argv[0],gene_info,options[:out_file],membrane_names,argv[2])
 end
 
 if __FILE__ == $0
