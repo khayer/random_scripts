@@ -78,7 +78,8 @@ def read_index(fai_file)
     chr,length,start = line.split("\t")
     length = length.to_i
     start = start.to_i
-    fai_index[chr] = {:start => start, :stop => start+length-1}
+    bias = length/25
+    fai_index[chr] = {:start => start, :stop => start+length+bias-1}
   end
   fai_index
 end
@@ -157,7 +158,7 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
         #elsif exonEnds[k]
       end
       novelStarts = exonStarts.concat(stop)
-      novelStops = exonEnds.concat(start)
+      novelStops = exonEnds.concat(starts)
       for k in 0...gene[:exonCount].to_i
         #sequence_original += seq_hash[chr][exonStarts[k]...exonEnds[k]]
         if stop < exonStarts[k]
