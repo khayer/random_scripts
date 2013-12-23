@@ -161,6 +161,10 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       novelStops_tmp = [exonEnds,start].flatten.sort
       novelStarts = []
       novelStops = []
+      puts "START: #{start}"
+      puts "STOP: #{stop}"
+      puts novelStarts_tmp.join("\t")
+      puts novelStops_tmp.join("\t")
       for k in 0...novelStarts_tmp.length-1
         if novelStarts.include?(novelStarts_tmp[k])
           next
