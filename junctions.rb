@@ -161,11 +161,16 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       novelStops_tmp = exonEnds.concat([start]).sort
       novelStarts = []
       novelStops = []
-      novelStarts_tmp.each_with_index do | start_tmp, k |
+      for k in 0...novelStarts_tmp.length
+        if novelStarts_tmp[k] == start
+          novelStarts << novelStarts_tmp[k]
+        else
+
+
         if novelStarts.include?(start_tmp)
           next
         else
-          novelStarts << start_tmp
+
           novelStops << novelStops_tmp[i]
         end
       end
