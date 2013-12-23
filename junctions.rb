@@ -203,7 +203,7 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       puts "ORIGINAL:"
       puts exonStarts.join("\t")
       puts exonEnds.join("\t")
-      STDIN.gets
+      #STDIN.gets
 
       if exonStarts.include?(stop) && exonEnds.include?(start)
         index_stop = exonStarts.index(stop)
