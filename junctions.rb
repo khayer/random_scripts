@@ -157,25 +157,22 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
         #  sequence_novel += seq_hash[chr][exonStarts[k]...start]
         #elsif exonEnds[k]
       end
-      novelStarts = exonStarts.concat(stop)
-      novelStops = exonEnds.concat(starts)
-      for k in 0...gene[:exonCount].to_i
-        #sequence_original += seq_hash[chr][exonStarts[k]...exonEnds[k]]
-        if stop < exonStarts[k]
-          novelStarts << stop
+      novelStarts_tmp = exonStarts.concat([stop]).sort
+      novelStops_tmp = exonEnds.concat([start]).sort
+      novelStarts = []
+      novelStops = []
+      novelStarts_tmp.each_with_index do | start_tmp, k |
+        if novelStarts.include?(start_tmp)
+          next
         else
-          novelStarts << exonStarts[k]
+          novelStarts << start_tmp
+          novelStops << novelStops_tmp[i]
         end
-        for l in 0...gene[:exonCount].to_i
-
-        if exonStarts[k] < start && exonEnds[k] < start &&
-          exonStarts[k] < stop && exonEnds[k] < stop
-          novelStarts << exonStarts[k]
-          novelStops << exonEnds[k]
-        elsif exonStarts[k] < start && exonEnds[k] > start &&
-          sequence_novel += seq_hash[chr][exonStarts[k]...start]
-          elsif exonEnds[k]
       end
+      puts novelStarts.join("\t")
+      puts novelStops.join("\t")
+      exit
+
       if exonStarts.include?(stop) && exonEnds.include?(start)
         index_stop = exonStarts.index(stop)
         index_start = exonEnds.index(start)
