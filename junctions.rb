@@ -78,7 +78,7 @@ def read_index(fai_file)
     chr,length,start = line.split("\t")
     length = length.to_i
     start = start.to_i
-    bias = length/25
+    bias = length/15
     fai_index[chr] = {:start => start, :stop => start+length+bias-1}
   end
   fai_index
