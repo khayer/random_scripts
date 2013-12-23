@@ -157,8 +157,8 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
         #  sequence_novel += seq_hash[chr][exonStarts[k]...start]
         #elsif exonEnds[k]
       end
-      novelStarts_tmp = exonStarts.concat([stop]).sort
-      novelStops_tmp = exonEnds.concat([start]).sort
+      novelStarts_tmp = [exonStarts,stop].flatten.sort
+      novelStops_tmp = [exonEnds,start].flatten.sort
       novelStarts = []
       novelStops = []
       for k in 0...novelStarts_tmp.length-1
