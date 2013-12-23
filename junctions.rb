@@ -150,6 +150,9 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       sequence_original = ""
       sequence_novel = ""
       for k in 0...gene[:exonCount].to_i
+        $logger.debug(chrom)
+        $logger.debug(exonStarts.join("\t"))
+        $logger.debug(exonEnds.join("\t"))
         sequence_original += seq_hash[chrom][exonStarts[k]...exonEnds[k]]
         #if exonStarts[k] < start && exonEnds[k] < start
         #  sequence_novel += seq_hash[chr][exonStarts[k]...exonEnds[k]]
