@@ -166,7 +166,7 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       puts novelStarts_tmp.join("\t")
       puts novelStops_tmp.join("\t")
       for k in 0...novelStarts_tmp.length-1
-        if novelStarts.include?(novelStarts_tmp[k])
+        if novelStarts.include?(novelStarts_tmp[k]) || novelStops.include?(novelStops_tmp[k])
           next
         else
           if novelStarts_tmp[k+1] < novelStops_tmp[k] || novelStarts_tmp[k+1] == novelStarts_tmp[k]
