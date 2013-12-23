@@ -182,7 +182,7 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
               novelStops << novelStops_tmp[k+1]
             end
           else
-            novelStarts << novelStarts_tmp[k+1]
+            novelStarts << novelStarts_tmp[k]
             novelStops << novelStops_tmp[k]
           end
         end
