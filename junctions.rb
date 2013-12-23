@@ -54,7 +54,7 @@ def setup_options(args)
 
   args = ["-h"] if args.length == 0
   opt_parser.parse!(args)
-  raise "Please specify input files" if args.length != 2
+  raise "Please specify input files" if args.length != 3
   options
 end
 
