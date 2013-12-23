@@ -165,11 +165,24 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
         if novelStarts.include?(novelStarts_tmp[k])
           next
         else
-          if novelStarts_tmp[k+1] > novelStops_tmp[k]
-            novelStarts << novelStarts_tmp[k]
-            novelStops << novelStops_tmp[k]
+          if novelStarts_tmp[k+1] > novelStops_tmp[k] || novelStarts_tmp[k+1] == novelStarts_tmp[k]
+            if novelStarts_tmp[k] == stop
+              novelStarts << novelStarts_tmp[k]
+              novelStops << novelStops_tmp[k]
+            else 
+              novelStarts << novelStarts_tmp[k+1]
+              novelStops << novelStops_tmp[k]
+            end
+          elsif novelStops_tmp[k+1] > novelStart_tmp[k] || novelStops_tmp[k+1] == novelStops_tmp[k]
+            if novelStops_tmp[k] == start
+              novelStarts << novelStarts_tmp[k]
+              novelStops << novelStops_tmp[k]
+            else 
+              novelStarts << novelStarts_tmp[k]
+              novelStops << novelStops_tmp[k+1]
+            end
           else
-            novelStarts << novelStops_tmp[k+1]
+            novelStarts << novelStarts_tmp[k+1]
             novelStops << novelStops_tmp[k]
           end
         end
@@ -178,6 +191,9 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       puts "STOP: #{stop}"
       puts novelStarts.join("\t")
       puts novelStops.join("\t")
+      puts "ORIGINAL:"
+      puts exonStarts.join("\t")
+      puts exonEnds.join("\t")
       STDIN.gets
 
       if exonStarts.include?(stop) && exonEnds.include?(start)
