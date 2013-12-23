@@ -176,7 +176,7 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       end
       puts novelStarts.join("\t")
       puts novelStops.join("\t")
-      exit
+      STDIN.gets
 
       if exonStarts.include?(stop) && exonEnds.include?(start)
         index_stop = exonStarts.index(stop)
