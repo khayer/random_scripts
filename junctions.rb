@@ -65,6 +65,7 @@ def read_annotation(anno_file)
     #puts row["name2"]
     gene_info[{:chrom => row["chrom"],:name => row["name"],:txStart => row["txStart"],:txEnd => row["txEnd"]}] = {:chrom => row["chrom"], :strand => row["strand"],
       :txStart => row["txStart"], :txEnd => row["txEnd"], :name2 => row["name2"],
+      :cdsStart => row["cdsStart"], :cdsEnd => row["cdsEnd"],
       :exonStarts => row["exonStarts"], :exonEnds => row["exonEnds"],
       :exonCount => row["exonCount"]}
   end
@@ -129,6 +130,8 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       next unless membrane_names.keys.include?(gene[:name2])
       exonStarts = gene[:exonStarts].split(",").map { |e| e.to_i }
       exonEnds = gene[:exonEnds].split(",").map { |e| e.to_i }
+      exonStarts[0] = gene[:cdsStart].to_i
+      exonEnds[-1] = gene[:cdsEnd].to_i
       novel = true
       for k in 0...gene[:exonCount].to_i
         novel = false if exonStarts[k+1] == stop && exonEnds[k] == start
