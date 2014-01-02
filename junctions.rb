@@ -152,6 +152,8 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       if gene[:cdsStart].to_i != gene[:cdsEnd].to_i
         exonStarts[0] = gene[:cdsStart].to_i
         exonEnds[-1] = gene[:cdsEnd].to_i
+      else
+        next
       end
       sequence_original = ""
       sequence_novel = ""
