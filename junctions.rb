@@ -176,7 +176,7 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
             if novelStarts_tmp[k] == stop
               novelStarts << novelStarts_tmp[k]
               novelStops << novelStops_tmp[k]
-            else 
+            else
               novelStarts << novelStarts_tmp[k+1]
               novelStops << novelStops_tmp[k]
             end
@@ -184,7 +184,7 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
             if novelStops_tmp[k] == start
               novelStarts << novelStarts_tmp[k]
               novelStops << novelStops_tmp[k]
-            else 
+            else
               novelStarts << novelStarts_tmp[k]
               novelStops << novelStops_tmp[k+1]
             end
@@ -203,7 +203,21 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       puts "ORIGINAL:"
       puts exonStarts.join("\t")
       puts exonEnds.join("\t")
-      #STDIN.gets
+      sequence_novel = ""
+      for k in 0...novelStarts.length
+        $logger.debug(chrom)
+        $logger.debug(novelStarts.join("\t"))
+        $logger.debug(novelStops.join("\t"))
+        sequence_novel += seq_hash[chrom][novelStarts[k]...novelStops[k]]
+        #if exonStarts[k] < start && exonEnds[k] < start
+        #  sequence_novel += seq_hash[chr][exonStarts[k]...exonEnds[k]]
+        #elsif exonStarts[k] < start && exonEnds[k] > start
+        #  sequence_novel += seq_hash[chr][exonStarts[k]...start]
+        #elsif exonEnds[k]
+      end
+      puts sequence_novel
+      puts sequence_original
+      STDIN.gets
 
       if exonStarts.include?(stop) && exonEnds.include?(start)
         index_stop = exonStarts.index(stop)
