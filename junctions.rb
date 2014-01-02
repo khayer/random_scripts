@@ -149,8 +149,10 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       gene = gene_info[gene_key]
       exonStarts = gene[:exonStarts].split(",").map { |e| e.to_i }
       exonEnds = gene[:exonEnds].split(",").map { |e| e.to_i }
-      exonStarts[0] = gene[:cdsStart].to_i
-      exonEnds[-1] = gene[:cdsEnd].to_i
+      if gene[:cdsStart].to_i != gene[:cdsEnd].to_i
+        exonStarts[0] = gene[:cdsStart].to_i
+        exonEnds[-1] = gene[:cdsEnd].to_i
+      end
       sequence_original = ""
       sequence_novel = ""
       for k in 0...gene[:exonCount].to_i
