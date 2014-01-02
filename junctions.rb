@@ -198,6 +198,7 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       novelStops << novelStops_tmp[-1]
       puts "START: #{start}"
       puts "STOP: #{stop}"
+      puts "STRAND #{gene[:strand]}"
       puts novelStarts.join("\t")
       puts novelStops.join("\t")
       puts "ORIGINAL:"
