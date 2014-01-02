@@ -224,8 +224,13 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
         #  sequence_novel += seq_hash[chr][exonStarts[k]...start]
         #elsif exonEnds[k]
       end
-      puts sequence_novel = Bio::Sequence::NA.new(sequence_novel.split("ATG")[1..-1].join("")).translate
-      puts sequence_original = Bio::Sequence::NA.new(sequence_original.split("ATG")[1..-1].join("")).translate
+      if strand == "+"
+        puts sequence_novel = Bio::Sequence::NA.new(sequence_novel.split("ATG")[1..-1].join("")).translate
+        puts sequence_original = Bio::Sequence::NA.new(sequence_original.split("ATG")[1..-1].join("")).translate
+      else
+        puts sequence_novel = Bio::Sequence::NA.new(sequence_novel.split("ATG")[1..-1].join("")).reverse_complement.translate
+        puts sequence_original = Bio::Sequence::NA.new(sequence_original.split("ATG")[1..-1].join("")).reverse_complement.translate
+      end
       STDIN.gets
 
       if exonStarts.include?(stop) && exonEnds.include?(start)
