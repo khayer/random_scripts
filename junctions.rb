@@ -224,7 +224,7 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
         #  sequence_novel += seq_hash[chr][exonStarts[k]...start]
         #elsif exonEnds[k]
       end
-      if strand == "+"
+      if gene[:strand] == "+"
         puts sequence_novel = Bio::Sequence::NA.new(sequence_novel.split("ATG")[1..-1].join("")).translate
         puts sequence_original = Bio::Sequence::NA.new(sequence_original.split("ATG")[1..-1].join("")).translate
       else
