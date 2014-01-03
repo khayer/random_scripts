@@ -230,8 +230,8 @@ def match_junctions(junctions,gene_info,out_file,membrane_names, fasta)
       else
         puts sequence_novel = Bio::Sequence::NA.new(sequence_novel).reverse_complement
         puts sequence_original = Bio::Sequence::NA.new(sequence_original).reverse_complement
-        puts sequence_novel = Bio::Sequence::NA.new(sequence_novel.split("ATG")[1..-1].join("")).translate
-        puts sequence_original = Bio::Sequence::NA.new(sequence_original.split("ATG")[1..-1].join("")).translate
+        puts sequence_novel = Bio::Sequence::NA.new(sequence_novel.split("atg")[1..-1].join("")).translate
+        puts sequence_original = Bio::Sequence::NA.new(sequence_original.split("atg")[1..-1].join("")).translate
       end
       STDIN.gets
 
