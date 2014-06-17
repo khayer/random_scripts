@@ -378,7 +378,7 @@ def run(argv)
   File.open(argv[1]).each do |line|
     line.chomp!
     next if line =~ /^@/
-    next unless /NH:i:1\s/
+    next unless line =~ /NH:i:1\s/
     fields = line.split("\t")
     next unless trans_hash[fields[0]]
     name ||= fields[0]
