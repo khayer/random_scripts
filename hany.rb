@@ -340,15 +340,15 @@ def read_trans(trans_file)
     # [CIGAR, SEQUENCE]
     if name != fields[0]
       if pair[0][0] != pair[1][0]
-        case "100M"
+        case "*"
         when pair[0][0]
-          trans_hash[name] = pair[0][1]
+          trans_hash[name] = pair[1]
         when pair[1][0]
-          trans_hash[name] = pair[1][0]
+          trans_hash[name] = pair[0]
         end
-        name = fields[0]
-        pair = []
       end
+      name = fields[0]
+      pair = []
     end
     pair << [fields[5], fields[9]]
   end
