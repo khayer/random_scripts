@@ -380,6 +380,8 @@ def run(argv)
     next unless trans_hash[fields[0]]
     puts trans_hash[fields[0]]
     puts line
+    STDIN.gets
+  end
 end
 
 if __FILE__ == $0
