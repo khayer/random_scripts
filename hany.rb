@@ -327,6 +327,15 @@ end
 #  membrane_names
 #end
 
+def matches(cigar)
+  numbers = cigar.split(/\D/).map { |e| e.to_i }
+  letters = cigar.split(/\d*/).reject { |c| c.empty? }
+  all_M = letters.each_index.select{|i| letters[i] == 'M'}
+  sum = 0
+  all_M.each {|e| sum += numbers[e]}
+  sum
+end
+
 def read_trans(trans_file)
   trans_hash={}
   name = nil
@@ -339,13 +348,13 @@ def read_trans(trans_file)
     name ||= fields[0]
     # [CIGAR, SEQUENCE]
     if name != fields[0]
-      $logger.debug("NAME = #{name} PAIR = #{pair}")
       if pair[0][0] != pair[1][0]
+        #$logger.debug("NAME = #{name} PAIR = #{pair}")
         case "*"
         when pair[0][0]
-          trans_hash[name] = pair[1]
+          trans_hash[name] = pair[1] if matches(pair[1][0]) > 50
         when pair[1][0]
-          trans_hash[name] = pair[0]
+          trans_hash[name] = pair[0] if matches(pair[0][0]) > 50
         end
       end
       name = fields[0]
