@@ -373,14 +373,32 @@ def run(argv)
   #membrane_names = read_membrane_file(options[:membrane_file]) if options[:membrane_file] != ""
   trans_hash = read_trans(argv[0])
   #puts trans_hash
+  name = nil
+  pair = []
   File.open(argv[1]).each do |line|
     line.chomp!
     next if line =~ /^@/
+    next unless /NH:i:1\s/
     fields = line.split("\t")
     next unless trans_hash[fields[0]]
-    puts trans_hash[fields[0]]
-    puts line
-    STDIN.gets
+    name ||= fields[0]
+    if name != fields[0]
+      if pair[0][0] != pair[1][0]
+        #$logger.debug("NAME = #{name} PAIR = #{pair}")
+        case
+        when matches(pair[1][0]) > 90 && matches(pair[0][0]) < 30
+          puts name
+          puts pair
+        when matches(pair[0][1]) > 90 && matches(pair[1][0]) < 30
+          puts name
+          puts pair
+        end
+      end
+      name = fields[0]
+      pair = []
+    end
+
+    pair << [fields[5], fields[9]]
   end
 end
 
