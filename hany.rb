@@ -352,9 +352,9 @@ def read_trans(trans_file)
         #$logger.debug("NAME = #{name} PAIR = #{pair}")
         case "*"
         when pair[0][0]
-          trans_hash[name] = pair[1] if matches(pair[1][0]) > 50
+          trans_hash[name] = pair[1] if matches(pair[1][0]) > 90
         when pair[1][0]
-          trans_hash[name] = pair[0] if matches(pair[0][0]) > 50
+          trans_hash[name] = pair[0] if matches(pair[0][0]) > 90
         end
       end
       name = fields[0]
