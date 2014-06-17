@@ -330,12 +330,26 @@ end
 def read_trans(trans_file)
   trans_hash={}
   name = nil
+  pair = []
   File.open(trans_file).each do |line|
     line.chomp!
+    next unless line =~ /NH:i:1\s/
     fields = line.split("\t")
     next if fields[2] == "*"
     name ||= fields[0]
-
+    # [CIGAR, SEQUENCE]
+    if name != fields[0]
+      if pair[0][0] != pair[1][0]
+      case "100M"
+      when pair[0][0]
+        trans_hash[name] = pair[0][1]
+      when pair[1][0]
+        trans_hash[name] = pair[1][0]
+      end
+      name = fields[0]
+      pair = []
+    end
+    pair << [fields[5], fields[9]]
   end
   trans_hash
 end
@@ -347,6 +361,7 @@ def run(argv)
   $logger.debug(argv)
   #membrane_names = read_membrane_file(options[:membrane_file]) if options[:membrane_file] != ""
   trans_hash = read_trans(argv[0])
+  puts trans_hash
 end
 
 if __FILE__ == $0
