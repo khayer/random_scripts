@@ -339,6 +339,7 @@ def read_trans(trans_file)
     name ||= fields[0]
     # [CIGAR, SEQUENCE]
     if name != fields[0]
+      $logger.debug("NAME = #{name} PAIR = #{pair}")
       if pair[0][0] != pair[1][0]
         case "*"
         when pair[0][0]
