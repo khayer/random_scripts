@@ -333,7 +333,7 @@ def read_trans(trans_file)
   pair = []
   File.open(trans_file).each do |line|
     line.chomp!
-    next unless line =~ /NH:i:1\s/
+    #next unless line =~ /NH:i:1\s/
     fields = line.split("\t")
     next if fields[2] == "*"
     name ||= fields[0]
