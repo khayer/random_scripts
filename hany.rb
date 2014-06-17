@@ -372,7 +372,14 @@ def run(argv)
   $logger.debug(argv)
   #membrane_names = read_membrane_file(options[:membrane_file]) if options[:membrane_file] != ""
   trans_hash = read_trans(argv[0])
-  puts trans_hash
+  #puts trans_hash
+  File.open(argv[1]).each do |line|
+    line.chomp!
+    next if line =~ /^@/
+    fields = line.split("\t")
+    next unless trans_hash[fields[0]]
+    puts trans_hash[fields[0]]
+    puts line
 end
 
 if __FILE__ == $0
