@@ -346,7 +346,7 @@ def read_trans(trans_file)
     fields = line.split("\t")
     next if fields[2] == "*"
     name ||= fields[0]
-    # [CIGAR, SEQUENCE]
+
     if name != fields[0]
       if matches(pair[0][0]) > 90 || matches(pair[1][0]) > 90
         #$logger.debug("NAME = #{name} PAIR = #{pair}")
@@ -355,6 +355,7 @@ def read_trans(trans_file)
       name = fields[0]
       pair = []
     end
+    # [CIGAR, SEQUENCE]
     pair << [fields[5], fields[9]]
   end
   trans_hash
@@ -380,14 +381,13 @@ def run(argv)
     if name != fields[0]
       if matches(pair[0][0]) > 90 || matches(pair[1][0]) > 90
         #$logger.debug("NAME = #{name} PAIR = #{pair}")
-        puts name
-        puts pair
+        puts "#{name}\t#{pair.join("\t")}"
       end
       name = fields[0]
       pair = []
     end
-
-    pair << [fields[5], fields[9]]
+    # [CIGAR, SEQUENCE]
+    pair << [ fields[5], fields[9], fields[2], fields[3]]
   end
 end
 
