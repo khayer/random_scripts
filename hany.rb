@@ -6,6 +6,7 @@ require 'csv'
 require 'bio'
 
 $logger = Logger.new(STDERR)
+$usage = "Usage: hany.rb [prep/compare]"
 
 # Initialize logger
 def setup_logger(loglevel)
@@ -24,7 +25,7 @@ end
 def setup_options(args)
   options = {:out_file =>  "junctions_table.xls", :cut_off => 1000, :membrane_file => ""}
   opt_parser = OptionParser.new do |opts|
-    opts.banner = "Usage: hany.rb [options] trans.sam malaria.sam"
+    opts.banner = "Usage: hany.rb prep [options] trans.sam malaria.sam"
     opts.separator ""
     opts.separator "This script summarizes all reads mapping to both transcriptome and"
     opts.separator "the malaria genome."
@@ -361,7 +362,7 @@ def read_trans(trans_file)
   trans_hash
 end
 
-def run(argv)
+def run_prep(argv)
   options = setup_options(argv)
   setup_logger(options[:log_level])
   $logger.debug(options)
@@ -391,6 +392,89 @@ def run(argv)
   end
 end
 
+
+def setup_options2(args)
+  options = {:out_file =>  "junctions_table.xls", :cut_off => 1000, :membrane_file => ""}
+  opt_parser = OptionParser.new do |opts|
+    opts.banner = "Usage: hany.rb compare [options] out_hany_prep"
+    opts.separator ""
+    opts.separator "This script counts the number of unique insertions."
+    opts.separator ""
+
+    #opts.on("-o", "--out_file [OUT_FILE]",
+    #  :REQUIRED,String,
+    #  "File for the output, Default: table.xls") do |anno_file|
+    #  options[:out_file] = anno_file
+    #end
+
+    #opts.on("-m", "--mebrane_file [MEMBRANE_FILE]",
+    #  :REQUIRED,String,
+    #  "Text with membrane genes.") do |anno_file|
+    #  options[:membrane_file] = anno_file
+    #end
+
+    opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+      options[:log_level] = "info"
+    end
+
+    opts.on("-d", "--debug", "Run in debug mode") do |v|
+      options[:log_level] = "debug"
+    end
+
+    #opts.on("-c", "--cut_off",:REQUIRED, Integer, "Set cut_off default is 1000") do |v|
+    #  options[:cut_off] = v
+    #end
+
+  end
+
+  args = ["-h"] if args.length == 0
+  opt_parser.parse!(args)
+  raise "Please specify input files" if args.length != 2
+  options
+end
+
+def is_within?(pos_1,pos_2,dis=1000000)
+  (pos_1-pos_2).abs < dis
+end
+
+def run_compare(argv)
+  options = setup_options2(argv)
+  setup_logger(options[:log_level])
+  $logger.debug(options)
+  $logger.debug(argv)
+  #membrane_names = read_membrane_file(options[:membrane_file]) if options[:membrane_file] != ""
+  #trans_hash = read_trans(argv[0])
+  #puts trans_hash
+  name = nil
+  positions = []
+  File.open(argv[0]).each do |line|
+    line.chomp!
+
+
+    read_name, cigar_1, seq_1, chr_1, pos_1, cigar_2, seq_2, chr_2, pos_2 = line.split("\t")
+    next unless chr_1 == chr_2
+    next unless is_within?(pos_1,pos_2)
+
+    accounted = false
+    positions.each do |el|
+      accounted = (el[0] == chr_1 && is_within?(el[1],pos_1))
+      break if accounted
+    end
+    positions = [chr_1,pos_1] unless accounted
+  end
+  puts "Num_uniq_insertions:\t#{positions.length}"
+  puts "CHR\tPOS"
+  positions.each {|e| puts e.join("\t")}
+end
+
 if __FILE__ == $0
-  run(ARGV)
+  unless ARGV.length > 0
+    puts $usage
+  end
+  case ARGV[0]
+  when "prep"
+    run_prep(ARGV[1..-1])
+  when "compare"
+    run_compare(ARGV[1..-1])
+  end
 end
