@@ -434,7 +434,7 @@ def setup_options2(args)
 end
 
 def is_within?(pos_1,pos_2,dis=1000000)
-  (pos_1-pos_2).abs < dis
+  (pos_1.to_i-pos_2.to_i).abs < dis.to_i
 end
 
 def run_compare(argv)
