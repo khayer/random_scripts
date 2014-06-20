@@ -433,7 +433,7 @@ def setup_options2(args)
   options
 end
 
-def is_within?(pos_1,pos_2,dis=100000)
+def is_within?(pos_1,pos_2,dis=250000)
   (pos_1.to_i-pos_2.to_i).abs < dis.to_i
 end
 
