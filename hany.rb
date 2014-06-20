@@ -464,7 +464,7 @@ def run_compare(argv)
   end
   puts "Num_uniq_insertions:\t#{positions.length}"
   puts "CHR\tPOS"
-  positions.each {|e| puts e.join("\t")}
+  positions.sort.each {|e| puts e.join("\t")}
 end
 
 if __FILE__ == $0
