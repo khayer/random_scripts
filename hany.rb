@@ -460,7 +460,7 @@ def run_compare(argv)
       accounted = (el[0] == chr_1 && is_within?(el[1],pos_1))
       break if accounted
     end
-    positions = [chr_1,pos_1] unless accounted
+    positions << [chr_1,pos_1] unless accounted
   end
   puts "Num_uniq_insertions:\t#{positions.length}"
   puts "CHR\tPOS"
