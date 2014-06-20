@@ -453,11 +453,11 @@ def run_compare(argv)
 
     read_name, cigar_1, seq_1, chr_1, pos_1, cigar_2, seq_2, chr_2, pos_2 = line.split("\t")
     next unless chr_1 == chr_2
-    next unless is_within?(pos_1,pos_2)
+    next unless is_within?(pos_1,pos_2,100000)
 
     accounted = false
     positions.each do |el|
-      accounted = (el[0] == chr_1 && is_within?(el[1],pos_1))
+      accounted = (el[0] == chr_1 && is_within?(el[1],pos_1,1000))
       break if accounted
     end
     positions << [chr_1,pos_1.to_i] unless accounted
