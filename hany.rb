@@ -349,7 +349,8 @@ def read_trans(trans_file)
     name ||= fields[0]
 
     if name != fields[0]
-      if matches(pair[0][0]) > 90 || matches(pair[1][0]) > 90
+      if (matches(pair[0][0]) > 10 && matches(pair[1][0]) < 10) ||
+        (matches(pair[0][0]) < 10 && matches(pair[1][0]) > 10)
         #$logger.debug("NAME = #{name} PAIR = #{pair}")
         trans_hash[name] = pair
       end
@@ -380,7 +381,8 @@ def run_prep(argv)
     next unless trans_hash[fields[0]]
     name ||= fields[0]
     if name != fields[0]
-      if matches(pair[0][0]) > 90 || matches(pair[1][0]) > 90
+      if (matches(pair[0][0]) > 10 && matches(pair[1][0]) < 10) ||
+        (matches(pair[0][0]) < 10 && matches(pair[1][0]) > 10)
         #$logger.debug("NAME = #{name} PAIR = #{pair}")
         puts "#{name}\t#{pair.join("\t")}"
       end
