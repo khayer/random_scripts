@@ -349,10 +349,11 @@ def read_trans(trans_file)
     name ||= fields[0]
 
     if name != fields[0]
-      if (matches(pair[0][0]) > 10 && matches(pair[1][0]) < 90) ||
-        (matches(pair[0][0]) < 90 && matches(pair[1][0]) > 10)
-        #$logger.debug("NAME = #{name} PAIR = #{pair}")
+      case
+      when (matches(pair[0][0]) > 10 && matches(pair[1][0]) < 10)
         trans_hash[name] = pair
+      when (matches(pair[0][0]) < 10 && matches(pair[1][0]) > 10)
+        trans_hash[name] = [pair[1],pair[0]]
       end
       name = fields[0]
       pair = []
@@ -373,24 +374,37 @@ def run_prep(argv)
   #puts trans_hash
   name = nil
   pair = []
+  cigar_1 = ""
+  cigar_2 = ""
+  seq_1 = ""
+  seq_1_rev_compl = ""
+  seq_2 = ""
+  seq_2_rev_compl = ""
   File.open(argv[1]).each do |line|
     line.chomp!
     next if line =~ /^@/
-    #next unless line =~ /NH:i:1\s/
     fields = line.split("\t")
     next unless trans_hash[fields[0]]
     name ||= fields[0]
     if name != fields[0]
-      if (matches(pair[0][0]) > 10 && matches(pair[1][0]) < 90) ||
-        (matches(pair[0][0]) < 90 && matches(pair[1][0]) > 10)
-        #$logger.debug("NAME = #{name} PAIR = #{pair}")
-        puts "#{name}\t#{pair.join("\t")}"
+      case
+      when (matches(pair[0][0]) > 10 && matches(pair[1][0]) < 10)
+        if (pair[0][1] == seq_2_rev_compl) || (pair[0][1] == seq_2)
+          puts "#{name}\t#{pair.join("\t")}"
+        end
+      when (matches(pair[0][0]) < 10 && matches(pair[1][0]) > 10)
+        if (pair[1][1] == seq_2_rev_compl) || (pair[1][1] == seq_2)
+          puts "#{name}\t#{pair.join("\t")}"
+        end
       end
       name = fields[0]
       pair = []
     end
-    # [CIGAR, SEQUENCE]
-    pair << [ fields[5], fields[9], fields[2], fields[3]]
+    # [CIGAR, SEQUENCE,CHROMOSOME,POSITION]
+    pair << [fields[5], fields[9], fields[2], fields[3]]
+    [cigar_1, seq_1, cigar_2, seq_2] = trans_hash[fields[0]]
+    seq_1_rev_compl = Bio::Sequence::NA.new(seq_1).reverse_complement
+    seq_2_rev_compl = Bio::Sequence::NA.new(seq_2).reverse_complement
   end
 end
 
