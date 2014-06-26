@@ -376,12 +376,12 @@ def run_prep(argv)
   File.open(argv[1]).each do |line|
     line.chomp!
     next if line =~ /^@/
-    next unless line =~ /NH:i:1\s/
+    #next unless line =~ /NH:i:1\s/
     fields = line.split("\t")
     next unless trans_hash[fields[0]]
     name ||= fields[0]
     if name != fields[0]
-      if (matches(pair[0][0]) > 30 || matches(pair[1][0]) > 30) 
+      if (matches(pair[0][0]) > 10 || matches(pair[1][0]) > 10) 
         #$logger.debug("NAME = #{name} PAIR = #{pair}")
         puts "#{name}\t#{pair.join("\t")}"
       end
