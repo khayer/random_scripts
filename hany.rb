@@ -484,8 +484,8 @@ def run_compare(argv)
   File.open(argv[0]).each do |line|
     line.chomp!
     read_name, cigar_1, seq_1, chr_1, pos_1, cigar_2, seq_2, chr_2, pos_2 = line.split("\t")
-    next unless chr_1 == chr_2
-    next unless is_within?(pos_1,pos_2,100000)
+    #next unless chr_1 == chr_2
+    #next unless is_within?(pos_1,pos_2,100000)
 
     accounted = false
     positions.each do |el|
@@ -512,7 +512,7 @@ def find_closest_gene(e,genes)
   closest_gene = nil
   genes.each_pair do |key, value|
     next unless e[0] == key[0]
-    closest_gene = value if (is_within?(e[1],key[1]) || is_within?(e[1],key[2]) )
+    closest_gene = value if (is_within?(e[1],key[1],1000) || is_within?(e[1],key[2],1000) )
   end
   closest_gene
 end
