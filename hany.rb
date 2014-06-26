@@ -402,7 +402,7 @@ def run_prep(argv)
     end
     # [CIGAR, SEQUENCE,CHROMOSOME,POSITION]
     pair << [fields[5], fields[9], fields[2], fields[3]]
-    cigar_1, seq_1, cigar_2, seq_2 = trans_hash[fields[0]]
+    cigar_1, seq_1, cigar_2, seq_2 = trans_hash[fields[0]].flatten
     seq_1_rev_compl = Bio::Sequence::NA.new(seq_1).reverse_complement
     seq_2_rev_compl = Bio::Sequence::NA.new(seq_2).reverse_complement
   end
