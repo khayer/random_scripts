@@ -489,7 +489,7 @@ def run_compare(argv)
 
     accounted = false
     positions.each do |el|
-      accounted = (el[0] == chr_1 && is_within?(el[1],pos_1,1000))
+      accounted = (el[0] == chr_1 && is_within?(el[1],pos_1,10000))
       break if accounted
     end
     positions << [chr_1,pos_1.to_i] unless accounted
@@ -512,7 +512,9 @@ def find_closest_gene(e,genes)
   closest_gene = nil
   genes.each_pair do |key, value|
     next unless e[0] == key[0]
-    closest_gene = value if (is_within?(e[1],key[1],1000) || is_within?(e[1],key[2],1000) )
+    closest_gene = value if (is_within?(e[1],key[1],1000) ||
+      is_within?(e[1],key[2],1000) ||
+      (e[1]>key[1] && e[1]<key[2])
   end
   closest_gene
 end
