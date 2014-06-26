@@ -412,9 +412,10 @@ end
 def setup_options2(args)
   options = {:out_file =>  "junctions_table.xls", :cut_off => 1000, :membrane_file => ""}
   opt_parser = OptionParser.new do |opts|
-    opts.banner = "Usage: hany.rb compare [options] out_hany_prep"
+    opts.banner = "Usage: hany.rb compare [options] out_hany_prep genes.gff"
     opts.separator ""
-    opts.separator "This script counts the number of unique insertions."
+    opts.separator "This script counts the number of unique insertions and"
+    opts.separator "finds genes in close proximaty."
     opts.separator ""
 
     #opts.on("-o", "--out_file [OUT_FILE]",
@@ -445,12 +446,27 @@ def setup_options2(args)
 
   args = ["-h"] if args.length == 0
   opt_parser.parse!(args)
-  raise "Please specify input files" if args.length != 1
+  raise "Please specify input files" if args.length != 2
   options
 end
 
 def is_within?(pos_1,pos_2,dis=10000)
   (pos_1.to_i-pos_2.to_i).abs < dis.to_i
+end
+
+def read_gff(file)
+  genes = {}
+  File.open(file).each do |line|
+    line.chomp!
+    fields = line.split("\t")
+    next unless fields[2] == "gene"
+    info = fields[8]
+    id = info.split("ID=")[1].split(";")[0]
+    description = info.split("description=")[1].split(";")[0]
+    strand = fields[6]
+    genes[[fields[0],fields[3].to_i,fields[4].to_i]] = [id,description,strand]
+  end
+  genes
 end
 
 def run_compare(argv)
@@ -463,6 +479,9 @@ def run_compare(argv)
   #puts trans_hash
   name = nil
   positions = []
+  genes = read_gff(argv[1])
+  puts genes
+  exit
   File.open(argv[0]).each do |line|
     line.chomp!
 
