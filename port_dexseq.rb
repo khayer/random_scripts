@@ -87,7 +87,7 @@ def run(argv)
   #  #genes_dexseq[[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i]] = pow(2.0,k)
   #end
 
-  File.open(argv[1], "r") { |io|  puts io }
+  File.open(argv[1], "r").each { |io|  puts io }
 
   
   puts genes_dexseq[["chr11",83461346,83462859]] == 1.1294926122229985
