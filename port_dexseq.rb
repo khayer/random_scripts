@@ -75,7 +75,9 @@ def run(argv)
     genes_port[[row["chromosome"],row["start"].to_i,row["end"].to_i]] = row["fold"].to_f
   end
 
+  puts genes_port["chr11",83461346,83462859] == 422.75
   genes_dexseq = {}
+
 
   #"groupID" "featureID" "exonBaseMean"  "dispersion"  "stat"  "pvalue "padj"  "control" "IL1b"  "log2fold_control_IL1b" "genomicData.seqnames"  "genomicData.start" "genomicData.end" "genomicData.width" "genomicData.strand"  "countData.4146_IL1b" "countData.4147_IL1b" "countData.4148_IL1b" "countData.4149_IL1b" "countData.4783_control"  "countData.4784_control"  "countData.4786_control"  "countData.4787_control"  "transcripts"
   CSV.read(argv[0], { :col_sep => "\t",:headers => :first_row }).each do |row|
@@ -84,7 +86,7 @@ def run(argv)
     genes_dexseq[[row["\"genomicData.seqnames\""],row["\"genomicData.start\""].to_i,row["\"genomicData.end\""].to_i]] = pow(2.0,k)
   end
 
-  puts genes_port["chr11",83461346,83462859] == 422.75
+  
   puts genes_dexseq["chr11",83461346,83462859] == 1.1294926122229985
 
 end
