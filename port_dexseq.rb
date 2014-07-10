@@ -80,8 +80,8 @@ def run(argv)
   
 
   
-  #genes_port = read_port(argv[0])
-  #puts genes_port[["chr11",83461346,83462859]] == 422.75
+  genes_port = read_port(argv[0])
+  puts genes_port[["chr11",83461346,83462859]] == 422.75
   genes_dexseq = {}
 
 
