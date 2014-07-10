@@ -75,7 +75,7 @@ def run(argv)
     genes_port[[row["chromosome"],row["start"].to_i,row["end"].to_i]] = row["fold"].to_f
   end
 
-  puts genes_port["chr11",83461346,83462859] == 422.75
+  puts genes_port[["chr11",83461346,83462859]] == 422.75
   genes_dexseq = {}
 
 
@@ -87,7 +87,7 @@ def run(argv)
   end
 
   
-  puts genes_dexseq["chr11",83461346,83462859] == 1.1294926122229985
+  puts genes_dexseq[["chr11",83461346,83462859]] == 1.1294926122229985
 
 end
 
