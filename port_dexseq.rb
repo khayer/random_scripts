@@ -88,14 +88,14 @@ def run(argv)
   #"groupID" "featureID" "exonBaseMean"  "dispersion"  "stat"  "pvalue "padj"  "control" "IL1b"  "log2fold_control_IL1b" "genomicData.seqnames"  "genomicData.start" "genomicData.end" "genomicData.width" "genomicData.strand"  "countData.4146_IL1b" "countData.4147_IL1b" "countData.4148_IL1b" "countData.4149_IL1b" "countData.4783_control"  "countData.4784_control"  "countData.4786_control"  "countData.4787_control"  "transcripts"
   CSV.read(argv[1], { :col_sep => "@",:headers => :first_row }).each do |row|
     k = row["log2fold_IL_control"].to_f
-    puts k
+    #puts k
     genes_dexseq[[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i]] = 2.0 ** k
   end
 
   #File.open(argv[1], "r").each { |io|  puts io }
 
-  
-  puts genes_dexseq[["chr11",83461346,83462859]] == 1.1294926122229985
+  puts genes_dexseq
+  puts genes_dexseq[["chr11",83461346,83462859]] #== 1.1294926122229985
 
 end
 
