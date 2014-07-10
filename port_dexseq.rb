@@ -80,13 +80,13 @@ def run(argv)
   
 
   
-  genes_port = read_port(argv[0])
-  puts genes_port[["chr11",83461346,83462859]] == 422.75
+  #genes_port = read_port(argv[0])
+  #puts genes_port[["chr11",83461346,83462859]] == 422.75
   genes_dexseq = {}
 
 
   #"groupID" "featureID" "exonBaseMean"  "dispersion"  "stat"  "pvalue "padj"  "control" "IL1b"  "log2fold_control_IL1b" "genomicData.seqnames"  "genomicData.start" "genomicData.end" "genomicData.width" "genomicData.strand"  "countData.4146_IL1b" "countData.4147_IL1b" "countData.4148_IL1b" "countData.4149_IL1b" "countData.4783_control"  "countData.4784_control"  "countData.4786_control"  "countData.4787_control"  "transcripts"
-  CSV.read(argv[1], { :col_sep => "\t",:headers => :first_row }).each do |row|
+  CSV.read(argv[1], { :col_sep => " ",:headers => :first_row }).each do |row|
     k = row["log2fold_control_IL1b"].to_f
     puts k
     #genes_dexseq[[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i]] = pow(2.0,k)
