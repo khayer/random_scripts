@@ -84,7 +84,7 @@ def run(argv)
   CSV.read(argv[1], { :col_sep => "\t",:headers => :first_row }).each do |row|
     k = row["log2fold_control_IL1b"].to_f
     puts k
-    genes_dexseq[[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i]] = pow(2.0,k)
+    #genes_dexseq[[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i]] = pow(2.0,k)
   end
 
   
