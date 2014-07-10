@@ -72,14 +72,14 @@ def run(argv)
 
   #feature type  chromosome  start end mean control  mean IL q-value fold  symbol  description ucsc_id
   CSV.read(argv[0], { :col_sep => "\t",:headers => :first_row }).each do |row|
-    genes_port[row["chromosome"],row["start"].to_i,row["end"].to_i] = row["fold"].to_f
+    genes_port[[row["chromosome"],row["start"].to_i,row["end"].to_i]] = row["fold"].to_f
   end
 
-  genes_dexseq
+  genes_dexseq = {}
 
   #"groupID" "featureID" "exonBaseMean"  "dispersion"  "stat"  "pvalue "padj"  "control" "IL1b"  "log2fold_control_IL1b" "genomicData.seqnames"  "genomicData.start" "genomicData.end" "genomicData.width" "genomicData.strand"  "countData.4146_IL1b" "countData.4147_IL1b" "countData.4148_IL1b" "countData.4149_IL1b" "countData.4783_control"  "countData.4784_control"  "countData.4786_control"  "countData.4787_control"  "transcripts"
   CSV.read(argv[0], { :col_sep => "\t",:headers => :first_row }).each do |row|
-    genes_dexseq[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i] = pow(2.0,row["log2fold_control_IL1b"].to_f)
+    genes_dexseq[[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i]] = pow(2.0,row["log2fold_control_IL1b"].to_f)
   end
 
   puts genes_port["chr11",83461346,83462859] == 422.75
