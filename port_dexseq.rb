@@ -62,32 +62,37 @@ def setup_options(args)
   options
 end
 
+def read_port(file)
+  genes_port = {}
+  #feature type  chromosome  start end mean control  mean IL q-value fold  symbol  description ucsc_id
+  CSV.read(file, { :col_sep => "\t",:headers => :first_row }).each do |row|
+    genes_port[[row["chromosome"],row["start"].to_i,row["end"].to_i]] = row["fold"].to_f
+  end
+  genes_port
+end
+
 def run(argv)
   options = setup_options(argv)
   setup_logger(options[:log_level])
   $logger.debug(options)
   $logger.debug(argv)
 
-  genes_port = {}
-  quote_chars = %w(" | ~ ^ & *)
+  
 
-  #feature type  chromosome  start end mean control  mean IL q-value fold  symbol  description ucsc_id
-  CSV.read(argv[0], { :col_sep => "\t",:headers => :first_row }).each do |row|
-    genes_port[[row["chromosome"],row["start"].to_i,row["end"].to_i]] = row["fold"].to_f
-  end
-
+  
+  genes_port = read_port(argv[0])
   puts genes_port[["chr11",83461346,83462859]] == 422.75
   genes_dexseq = {}
 
 
   #"groupID" "featureID" "exonBaseMean"  "dispersion"  "stat"  "pvalue "padj"  "control" "IL1b"  "log2fold_control_IL1b" "genomicData.seqnames"  "genomicData.start" "genomicData.end" "genomicData.width" "genomicData.strand"  "countData.4146_IL1b" "countData.4147_IL1b" "countData.4148_IL1b" "countData.4149_IL1b" "countData.4783_control"  "countData.4784_control"  "countData.4786_control"  "countData.4787_control"  "transcripts"
-  #CSV.read(argv[1], { :col_sep => " ",:headers => :first_row }).each do |row|
-  #  k = row["log2fold_control_IL1b"].to_f
-  #  puts k
-  #  #genes_dexseq[[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i]] = pow(2.0,k)
-  #end
+  CSV.read(argv[1], { :col_sep => "\t",:headers => :first_row }).each do |row|
+    k = row["log2fold_control_IL1b"].to_f
+    puts k
+    #genes_dexseq[[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i]] = pow(2.0,k)
+  end
 
-  File.open(argv[1], "r").each { |io|  puts io }
+  #File.open(argv[1], "r").each { |io|  puts io }
 
   
   puts genes_dexseq[["chr11",83461346,83462859]] == 1.1294926122229985
