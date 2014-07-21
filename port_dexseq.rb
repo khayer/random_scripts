@@ -77,27 +77,30 @@ def run(argv)
   $logger.debug(options)
   $logger.debug(argv)
 
-  
 
-  
+
+
   genes_port = read_port(argv[0])
-  puts genes_port[["chr11",83461346,83462859]] == 422.75
+  #puts genes_port[["chr11",83461346,83462859]] == 422.75
   genes_dexseq = {}
 
 
   #"groupID" "featureID" "exonBaseMean"  "dispersion"  "stat"  "pvalue "padj"  "control" "IL1b"  "log2fold_control_IL1b" "genomicData.seqnames"  "genomicData.start" "genomicData.end" "genomicData.width" "genomicData.strand"  "countData.4146_IL1b" "countData.4147_IL1b" "countData.4148_IL1b" "countData.4149_IL1b" "countData.4783_control"  "countData.4784_control"  "countData.4786_control"  "countData.4787_control"  "transcripts"
   CSV.read(argv[1], { :col_sep => "@",:headers => :first_row }).each do |row|
     k = row["log2fold_IL_control"].to_f
-    next if k == 0.0 
+    next if k == 0.0
     #puts k
     genes_dexseq[[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i]] = 2.0 ** k
   end
 
   #File.open(argv[1], "r").each { |io|  puts io }
 
-  puts genes_dexseq
-  puts genes_dexseq[["chr11",83461346,83462859]] #== 1.1294926122229985
-
+  #puts genes_dexseq
+  #puts genes_dexseq[["chr11",83461346,83462859]] #== 1.1294926122229985
+  genes_port.each_pair do |key,value|
+    if genes_dexseq[key]
+      puts "#{key.join("\t")}\t#{value}\t#{genes_dexseq[key]}"
+    end
 end
 
 if __FILE__ == $0
