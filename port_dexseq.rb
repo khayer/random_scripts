@@ -89,7 +89,7 @@ def run(argv)
   CSV.read(argv[1], { :col_sep => "@",:headers => :first_row }).each do |row|
     k = row["log2fold_IL_control"].to_f
     next if k == 0.0
-    next if row['padj'] == NA
+    next if row['padj'] == "NA"
     #puts k
     genes_dexseq[[row["genomicData.seqnames"],row["genomicData.start"].to_i,row["genomicData.end"].to_i]] = 2.0 ** k
   end
