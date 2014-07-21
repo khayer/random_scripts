@@ -101,6 +101,7 @@ def run(argv)
     if genes_dexseq[key]
       puts "#{key.join("\t")}\t#{value}\t#{genes_dexseq[key]}"
     end
+  end
 end
 
 if __FILE__ == $0
