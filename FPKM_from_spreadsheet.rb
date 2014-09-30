@@ -45,6 +45,7 @@ class GTF
   def transcript(key)
     transcript = []
     pos_in_file = @index[key]
+    #puts key
     @filehandle.pos = pos_in_file
     seen = 0
     @filehandle.each do |line|
@@ -75,8 +76,8 @@ def read_mapping_stats(file)
   end
   mio_reads
 end
-
-g = GTF.new("/Users/hayer/Box Sync/emanuela/mm9_anno/mm9_ensembl_ucsc_patched.gtf")
+g = GTF.new("/Users/hayer/Box Sync/emanuela/mm9_anno/Mus_musculus.NCBIM37.62.gtf")
+#g = GTF.new("/Users/hayer/Box Sync/emanuela/mm9_anno/mm9_ensembl_ucsc_patched.gtf")
 g.create_index()
 #puts g.filename
 #puts g.index
@@ -87,20 +88,21 @@ mio_reads = read_mapping_stats("/Users/hayer/Box Sync/emanuela/mappingstats_summ
 #puts mio_reads
 first = true
 sample_names = []
-CSV.foreach("/Users/hayer/Box Sync/emanuela/not_normalized.csv") do |ps|
+CSV.foreach("/Users/hayer/Box Sync/emanuela/FINAL_master_list_of_genes_counts_MIN.BATCH.UNNORMALIZED.txt",:col_sep => "\t") do |ps|
+#CSV.foreach("/Users/hayer/Box Sync/emanuela/not_normalized.csv") do |ps|
   ps.map { |e| e.delete("\"") }
   if first
     ps.each do |k|
-      sample_names << k.split(".")[0]
+      sample_names << k.split(".")[0].gsub(/_NSS$/,"")
     end
     puts sample_names.join(",")
     first = false
     next
   end
-  gene_id = ps[0]
+  gene_id = ps[0].gsub(/^gene:/,"")
   fpkms  = [gene_id]
   for i in (1..16).to_a
-    length_transcript = calc_length(g.transcript(ps[0]))
+    length_transcript = calc_length(g.transcript(gene_id))
     fpkms << fpkm(ps[i],length_transcript,mio_reads[sample_names[i]])
   end
   puts fpkms.join(",")
