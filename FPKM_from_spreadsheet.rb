@@ -1,3 +1,5 @@
+require "csv"
+
 def fpkm(fragment,length_transcript,number_mio_of_reads=50)
   ((fragment.to_f/(length_transcript.to_f/1000))/number_mio_of_reads.to_f).to_f
   #(fragment.to_f/number_mio_of_reads.to_f).to_f
@@ -12,7 +14,7 @@ def calc_length(transcript)
   length
 end
 
-class GTF 
+class GTF
 
   def initialize(filename)
     @filename = filename
@@ -48,7 +50,7 @@ class GTF
     @filehandle.each do |line|
       line.chomp!
       fields = line.split("\t")
-      puts line
+      #puts line
       id = fields[-1].split("gene_id ")[1].split(";")[0].delete("\"")
       break if id != key && seen == 1
       next unless line =~ /\sexon\s/
@@ -62,9 +64,47 @@ class GTF
   end
 end
 
-g = GTF.new("/Users/kat/Box Sync/emanuela/mm9_anno/mm9_ensembl_ucsc_patched.gtf")
+def read_mapping_stats(file)
+  mio_reads = {}
+  #id totalreads  UniqueFWDandREV UniqueFWDorREV  UniqueChrM  %overlap  Non-UniqueFWDandREV Non-UniqueFWDorREV  FWDorREVmapped
+  CSV.foreach(file,:col_sep => "\t", :headers => true) do |ps|
+    id = ps["id"].gsub(/_NSS$/,"")
+    #puts id
+    num = ps["UniqueFWDandREV"].delete(",").to_f / 1000000
+    mio_reads[id] = num
+  end
+  mio_reads
+end
+
+g = GTF.new("/Users/hayer/Box Sync/emanuela/mm9_anno/mm9_ensembl_ucsc_patched.gtf")
 g.create_index()
-puts g.filename
-puts g.index
-puts "HERE"
-puts g.transcript("ENSMUST00000175395")
+#puts g.filename
+#puts g.index
+#puts "HERE"
+#puts g.transcript("ENSMUST00000072177")
+
+mio_reads = read_mapping_stats("/Users/hayer/Box Sync/emanuela/mappingstats_summary_merged.txt")
+#puts mio_reads
+first = true
+sample_names = []
+CSV.foreach("/Users/hayer/Box Sync/emanuela/not_normalized.csv") do |ps|
+  ps.map { |e| e.delete("\"") }
+  if first
+    ps.each do |k|
+      sample_names << k.split(".")[0]
+    end
+    puts sample_names.join(",")
+    first = false
+    next
+  end
+  gene_id = ps[0]
+  fpkms  = [gene_id]
+  for i in (1..16).to_a
+    length_transcript = calc_length(g.transcript(ps[0]))
+    fpkms << fpkm(ps[i],length_transcript,mio_reads[sample_names[i]])
+  end
+  puts fpkms.join(",")
+end
+
+
+
