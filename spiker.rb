@@ -23,8 +23,11 @@ puts mio_reads["Sample_9581"]
 puts mio_reads["Sample_9582"]
 puts mio_reads["Sample_9583"]
 
-chrM_files = ["/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/Sample_4731_chrM.sam",
-  "/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/Sample_4722_chrM.sam"]
+#chrM_files = ["/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/Sample_4731_chrM.sam",
+#  "/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/Sample_4722_chrM.sam"]
+chrM_files = ["/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/pool1_4721_4722_4140_4731.sam",
+  "/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/pool2_4138_4143_4145_4712_4720.sam"]
+cmd = ["head","tail"]
 
 File.open("/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/new/names_file2.txt").each do |line|
   line.chomp!
@@ -32,8 +35,9 @@ File.open("/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/new/names_file2.tx
   shell = File.open("/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/#{name}.sh",'w')
   out_file_spikes = "/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/for_#{name}.sam"
   chrM_file = chrM_files[rand(2)]
-  num = mio_reads[name]*2
-  shell.puts "head -#{num} #{chrM_file} > #{out_file_spikes}"
+  cur_cmd = cmd[rand(2)]
+  num = mio_reads[name]*20
+  shell.puts "#{cur_cmd} -#{num} #{chrM_file} > #{out_file_spikes}"
   in_sam = "/project/itmatlab/emanuela/kat_run_aug14/out/#{name}/Aligned.out.sam"
   out_sam = "/project/itmatlab/emanuela/kat_run_aug14/chrM_pool/new/#{name}.sam"
   shell.puts "cat #{in_sam} #{out_file_spikes} > #{out_sam}"
